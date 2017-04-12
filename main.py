@@ -3,7 +3,7 @@
 
 
 def new_duct_network():
-    ducts = dict(title=None, fanpressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
+    ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
 
 
@@ -18,11 +18,49 @@ def read_input_file(filename):
     file = open(filename, 'r')
     data = file.readlines()
     file.close()
+    # print(data)
     return data
 
 
 def process_keyworkds(data):
-    pass
+    ducts = new_duct_network()
+    # print('data: ', data)
+    for line in data:
+        # print('line: ', line)
+        if line.find('#') > 0:
+            continue
+        else:
+            item = [x.strip() for x in line.split(',')]
+            # print('item: ', item)
+            if item[0] == 'title':
+                ducts['title'] = item[1]
+            elif item[0] == 'fan_pressure':
+                ducts['fan_pressure'] = item[1]
+            elif item[0] == 'air_density':
+                ducts['air_density'] = item[1]
+            elif item[0] == 'roughness':
+                ducts['roughness'] = item[1]
+            elif item[0] == 'rounding':
+                ducts['rounding'] = item[1]
+            elif item[0] == 'fitting':
+                fitting = new_fitting()
+                fitting['ID'] = item[1]
+                fitting['type'] = item[2]
+                try:  # checking for air handeling units and other malformed lines
+                    fitting['IDup'] = item[3]
+                except:
+                    continue
+                if item[2] == 'Duct':  # check for ducts. Ducts should have length
+                    fitting['length'] = item[4]
+                elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
+                    fitting['flow'] = item[4]
+                else:  # Everything not a duct or diffuser
+                    continue
+                ducts['fittings'].append(fitting)
+            else:
+                continue
+
+    return ducts
 
 
 def find_fitting(ID, fittings):
@@ -48,8 +86,8 @@ def print_fitting(f):
     print(f['type'], ' ', end='')
     if f['IDup'] is not None:
         print(' connects to: ', f['IDup'], end='')
-    if f['BranchUP'] is not None:
-        print('-', f['BranchUp'])
+    if f['branchUP'] is not None:
+        print('-', f['branchUp'])
     else:
         print('\n', end='')
 
@@ -66,7 +104,7 @@ def print_fitting(f):
 def print_summary(ducts):
     print('title: ', ducts['title'])
     print('fan_pressure: ', ducts['fan_pressure'])
-    print('air_density: ', ducts)
+    print('air_density: ', ducts['air_density'])
     # This is exhausting.
     print('roughness: ', ducts['roughness'])
     print('rounding: ', ducts['rounding'])
@@ -76,8 +114,10 @@ def print_summary(ducts):
 
 
 def main():
-    file_data = read_input_file('Duct Design Sample Input')
+    file_data = read_input_file('Duct Design Sample Input.txt')
+    # print(file_data)
     ducts = process_keyworkds(file_data)
+    # print(ducts)
     print('After process_keywords', end='\n\n')
     print_summary(ducts)
 

@@ -7,7 +7,7 @@
 
 # each line stands alone, and there is no required ORDER to the file
 
-title, 'A Fictitious Small Office Building
+title, 'A Fictitious Small Office Building'
 #                in. wg
 fan_pressure, 1.000
 #                lbm/cubic foot

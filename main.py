@@ -104,10 +104,30 @@ def setup_fan_distances(fittings):
 
 
 def setup_flowrates(fittings):
+    main_pattern = re.compile(r'\d+\b-main\b')
+    branch_pattern = re.compile(r'\d+\b-branch\b')
     for fitting in fittings:
+        flow = 0.0
         if fitting['type'] == 'Diffuser':
-            fittingUp = find_fitting(fitting['IDup'], fittings)
-            fittingUp['flow'] += fitting['flow']
+            if fitting['IDup'] is None:
+                continue
+            elif main_pattern.match(fitting['IDup']):  # main line from Tee
+                # print('matched main')
+                index_of_hyphen = fitting['IDup'].find('-')
+                tee_ID = fitting['IDup'][:index_of_hyphen]
+                # print(tee_ID)
+            elif branch_pattern.match(fitting['IDup']):  # branch from Tee
+                # print('matched branch')
+                index_of_hyphen = fitting['IDup'].find('-')
+                tee_ID = fitting['IDup'][:index_of_hyphen]
+                # print(tee_ID)
+            else:
+                tee_ID = fitting['IDup']
+            fittingUp = find_fitting(float(tee_ID), fittings)
+            print(fittingUp)
+            flow += fitting['flow']
+            fittingUp['flow'] = flow
+
 
 
 def print_fitting(f):

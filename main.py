@@ -1,5 +1,6 @@
 import re
 
+
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
@@ -77,7 +78,6 @@ def make_connections(fittings):
             print('matched branch')
 
 
-
 def setup_fan_distances(fittings):
     pass
 
@@ -87,8 +87,6 @@ def setup_flowrates(fittings):
     for fitting in fittings:
         if fitting['type'] == 'Diffuser':
             diffuser_IDs.append(fitting['ID'])
-
-
 
 
 def print_fitting(f):

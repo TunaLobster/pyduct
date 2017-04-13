@@ -45,6 +45,7 @@ def process_keywords(data):
                 fitting = new_fitting()
                 fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
+                fitting['flow'] = 0.0
                 try:  # checking for air handeling units and other malformed lines
                     fitting['IDup'] = item[3]
                 except:
@@ -86,8 +87,10 @@ def setup_fan_distances(fittings):
 def setup_flowrates(fittings):
     for fitting in fittings:
         if fitting['type'] == 'Diffuser':
+            print(fitting['IDup'])
             fittingUp = find_fitting(fitting['IDup'], fittings)
-            fittingUp['flow'] += fitting['flow']
+            print(fittingUp)
+            #fittingUp['flow'] += fitting['flow']
 
 
 
@@ -127,11 +130,11 @@ def print_summary(ducts):
 
 def main():
     file_data = read_input_file('Duct Design Sample Input.txt')
-    # print(file_data)
+    print(file_data)
     ducts = process_keywords(file_data)
-    # print(ducts)
-    # print('After process_keywords', end='\n\n')
-    # print_summary(ducts)
+    print(ducts)
+    print('After process_keywords', end='\n\n')
+    print_summary(ducts)
 
     fittings = ducts['fittings']
     print('Making connections', end='\n\n')

@@ -72,9 +72,9 @@ def make_connections(fittings):
     branch_pattern = re.compile(r'\d{1-2}-branch')
     for fitting in fittings:
         if main_pattern.match(fitting['IDup']):  # main line from Tee
-            pass
+            print('matched main')
         elif branch_pattern.match(fitting['IDup']):
-            pass
+            print('matched branch')
 
 
 
@@ -96,7 +96,7 @@ def print_fitting(f):
     print(f['type'], ' ', end='')
     if f['IDup'] is not None:
         print(' connects to: ', f['IDup'], end='')
-    if f['branchUP'] is not None:
+    if f['BranchUP'] is not None:
         print('-', f['branchUp'])
     else:
         print('\n', end='')
@@ -132,7 +132,9 @@ def main():
     print_summary(ducts)
 
     fittings = ducts['fittings']
+    print('Making connections', end='\n\n')
     make_connections(fittings)
+    print('Finding flowrates and fan distances', end='\n\n')
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 

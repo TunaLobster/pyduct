@@ -69,8 +69,9 @@ def find_fitting(ID, fittings):
 
 
 def make_connections(fittings):
-    main_pattern = re.compile(r'\d{1-2}-main')
-    branch_pattern = re.compile(r'\d{1-2}-branch')
+    main_pattern = re.compile(r'\d+\b-main\b')
+    branch_pattern = re.compile(r'\d+\b-branch\b')
+    print(fittings)
     for fitting in fittings:
         if main_pattern.match(fitting['IDup']):  # main line from Tee
             print('matched main')
@@ -126,8 +127,8 @@ def main():
     # print(file_data)
     ducts = process_keywords(file_data)
     # print(ducts)
-    print('After process_keywords', end='\n\n')
-    print_summary(ducts)
+    # print('After process_keywords', end='\n\n')
+    # print_summary(ducts)
 
     fittings = ducts['fittings']
     print('Making connections', end='\n\n')
@@ -136,8 +137,8 @@ def main():
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
-    print('\n\nAfter setup_fan_distances \n')
-    print_summary(ducts)
+    # print('\n\nAfter setup_fan_distances \n')
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

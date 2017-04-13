@@ -139,13 +139,15 @@ def print_fitting(f):
         print('\n', end='')
 
     if f['length'] is not None:
-        print(' length: ', f['length'])
+        print('    length: ', f['length'])
     if f['IDdownMain'] is not None:
-        print(' IDdownMain: ', f['IDdownMain'])
+        print('    IDdownMain: ', f['IDdownMain'])
+    if f['IDdownBranch'] is not None:
+        print('    IDdownBranch', f['IDdownBranch'])
     if f['flow'] is not None:
-        print(' flow: ', f['flow'])
+        print('    flow: ', f['flow'])
     if f['fandist'] is not None:
-        print(' fandist: ', f['fandist'])
+        print('    fandist: ', f['fandist'])
 
 
 def print_summary(ducts):

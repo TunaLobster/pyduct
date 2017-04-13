@@ -116,7 +116,7 @@ def print_summary(ducts):
 def main():
 	file_data = read_input_file('Duct Design Sample Input.txt')
 	# print(file_data)
-	ducts = process_keyworkds(file_data)
+	ducts = process_keywords(file_data)
 	# print(ducts)
 	print('After process_keywords', end='\n\n')
 	print_summary(ducts)
@@ -130,14 +130,9 @@ def main():
 	print_summary(ducts)
 
 
-# Charlie comment
 # end code from Dela
 # ---------------------------
 
 
 if __name__ == '__main__':
 	main()
-
-# YOU DONT WHISKEY THE ZISKE
-# this is a math comment
-#nick has a dickbutt

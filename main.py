@@ -86,12 +86,8 @@ def setup_fan_distances(fittings):
 def setup_flowrates(fittings):
     for fitting in fittings:
         if fitting['type'] == 'Diffuser':
-            fittingUpID = fitting['IDup']
-            flow = 0.0
-            for fittingUp in fittings:
-                if fittingUp['ID'] == fittingUpID:
-                    flow = fitting['flow'] + flow
-                    fittingUp['flow'] = flow
+            fittingUp = find_fitting(fitting['IDup'], fittings)
+            fittingUp['flow'] += fitting['flow']
 
 
 

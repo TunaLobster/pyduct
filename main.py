@@ -43,7 +43,7 @@ def process_keywords(data):
                 ducts['rounding'] = item[1]
             elif item[0] == 'fitting':  # initializing fittings information
                 fitting = new_fitting()
-                fitting['ID'] = int(item[1])
+                fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
                 try:  # checking for air handeling units and other malformed lines
                     # if fitting['type'] == '':
@@ -55,7 +55,7 @@ def process_keywords(data):
                 elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
                     fitting['flow'] = float(item[4])
                 else:  # Everything not a duct or diffuser
-                    continue
+                    pass
                 ducts['fittings'].append(fitting)
             else:
                 continue
@@ -82,8 +82,9 @@ def make_connections(fittings):
             continue
         elif main_pattern.match(fitting['IDup']):  # main line from Tee
             # print('matched main')
+            # Find index of hyphen when present
             index_of_hyphen = fitting['IDup'].find('-')
-            tee_ID = int(fitting['IDup'][:index_of_hyphen])
+            tee_ID = float(fitting['IDup'][:index_of_hyphen])
             print(tee_ID)
             tee_fitting = find_fitting(tee_ID, fittings)
             print(type(tee_fitting))
@@ -124,7 +125,7 @@ def setup_flowrates(fittings):
             else:
                 tee_ID = fitting['IDup']
             fittingUp = find_fitting(float(tee_ID), fittings)
-            print(fittingUp)
+            # print(fittingUp)
             flow += fitting['flow']
             fittingUp['flow'] = flow
 

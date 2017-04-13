@@ -22,7 +22,7 @@ def read_input_file(filename):
 	return data
 
 
-def process_keyworkds(data):
+def process_keywords(data):
 	ducts = new_duct_network()
 	# print('data: ', data)
 	for line in data:

@@ -1,5 +1,5 @@
 import re
-
+from copy import deepcopy
 
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
@@ -85,11 +85,8 @@ def make_connections(fittings):
             # Find index of hyphen when present
             index_of_hyphen = fitting['IDup'].find('-')
             tee_ID = float(fitting['IDup'][:index_of_hyphen])
-            print(tee_ID)
             tee_fitting = find_fitting(tee_ID, fittings)
-            print(type(tee_fitting))
             tee_fitting['IDdownMain'] = fitting['ID']
-            # print(tee_ID)
         elif branch_pattern.match(fitting['IDup']):  # branch from Tee
             # print('matched branch')
             index_of_hyphen = fitting['IDup'].find('-')
@@ -107,11 +104,12 @@ def setup_fan_distances(fittings):
 def setup_flowrates(fittings):
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
-    for fitting in fittings:
+    run_fit = deepcopy(fittings)
+    for fitting in run_fit:
         flow = 0.0
-        if fitting['type'] == 'Diffuser':
+        if fitting['flow'] is not None:
             if fitting['IDup'] is None:
-                continue
+                return
             elif main_pattern.match(fitting['IDup']):  # main line from Tee
                 # print('matched main')
                 index_of_hyphen = fitting['IDup'].find('-')
@@ -125,10 +123,9 @@ def setup_flowrates(fittings):
             else:
                 tee_ID = fitting['IDup']
             fittingUp = find_fitting(float(tee_ID), fittings)
-            # print(fittingUp)
             flow += fitting['flow']
             fittingUp['flow'] = flow
-
+    #setup_flowrates(fittings)
 
 
 def print_fitting(f):
@@ -179,7 +176,7 @@ def main():
     setup_fan_distances(fittings)
 
     print('\n\nAfter setup_fan_distances \n')
-    # print_summary(ducts)
+    print_summary(ducts)
 
 
 if __name__ == '__main__':

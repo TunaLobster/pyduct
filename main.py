@@ -101,9 +101,6 @@ def setup_flowrates(fittings):
             fittingUp['flow'] += fitting['flow']
 
 
-
-
-
 def print_fitting(f):
     print(' ', f['ID'], ' ', end='')
     print(f['type'], ' ', end='')

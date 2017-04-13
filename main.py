@@ -133,23 +133,25 @@ def setup_flowrates(fittings):
 
 
 def print_fitting(f):
-    print(' ', f['ID'], ' ', end='')
+    print(' ', int(f['ID']), ' ', end='')
     print(f['type'], ' ', end='')
     if f['IDup'] is not None:
-        print(' connects to: ', f['IDup'], end='')
+        print('connects to: ', f['IDup'], end='')
     if f['BranchUP'] is not None:
         print('-', f['branchUp'])
     else:
         print('\n', end='')
 
     if f['length'] is not None:
-        print(' length: ', f['IDdownMain'])
+        print('    length: ', f['length'])
     if f['IDdownMain'] is not None:
-        print(' IDdownMain: ', f['IDdownMain'])
+        print('    IDdownMain: ', int(f['IDdownMain']))
+    if f['IDdownBranch'] is not None:
+        print('    IDdownBranch', int(f['IDdownBranch']))
     if f['flow'] is not None:
-        print(' flow: ', f['flow'])
+        print('    flow: ', f['flow'])
     if f['fandist'] is not None:
-        print(' fandist: ', f['fandist'])
+        print('    fandist: ', f['fandist'])
 
 
 def print_summary(ducts):

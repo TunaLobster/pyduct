@@ -1,7 +1,3 @@
-# ----------------------------
-# code from Dela
-
-
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
@@ -78,7 +74,11 @@ def setup_fan_distances(fittings):
 
 
 def setup_flowrates(fittings):
-    pass
+    diffuser_IDs = []
+    for fitting in fittings:
+        if fitting['type'] == 'Diffuser':
+            diffuser_IDs.append(fitting['ID'])
+
 
 
 def print_fitting(f):
@@ -130,11 +130,5 @@ def main():
     print_summary(ducts)
 
 
-# end code from Dela
-# ---------------------------
-
-
 if __name__ == '__main__':
     main()
-
-#praying this works

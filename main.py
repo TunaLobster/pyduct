@@ -46,6 +46,7 @@ def process_keywords(data):
                 fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
                 try:  # checking for air handeling units and other malformed lines
+                    # if fitting['type'] == '':
                     fitting['IDup'] = item[3]
                 except:
                     continue
@@ -71,12 +72,22 @@ def find_fitting(ID, fittings):
 def make_connections(fittings):
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
-    print(fittings)
+    # print(fittings)
     for fitting in fittings:
-        if main_pattern.match(fitting['IDup']):  # main line from Tee
-            print('matched main')
-        elif branch_pattern.match(fitting['IDup']):
-            print('matched branch')
+        # print(type(fitting['IDup']))
+        if fitting['IDup'] is None:
+            continue
+        elif main_pattern.match(fitting['IDup']):  # main line from Tee
+            # print('matched main')
+            index_of_hyphen = fitting['IDup'].find('-')
+            tee_ID = fitting['IDup'][:index_of_hyphen]
+            # print(tee_ID)
+        elif branch_pattern.match(fitting['IDup']):  # branch from Tee
+            # print('matched branch')
+            index_of_hyphen = fitting['IDup'].find('-')
+            tee_ID = fitting['IDup'][:index_of_hyphen]
+            # print(tee_ID)
+            pass
 
 
 def setup_fan_distances(fittings):
@@ -135,8 +146,8 @@ def main():
     # print(file_data)
     ducts = process_keywords(file_data)
     # print(ducts)
-    # print('After process_keywords', end='\n\n')
-    # print_summary(ducts)
+    print('After process_keywords', end='\n\n')
+    print_summary(ducts)
 
     fittings = ducts['fittings']
     print('Making connections', end='\n\n')
@@ -145,8 +156,8 @@ def main():
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
-    # print('\n\nAfter setup_fan_distances \n')
-    # print_summary(ducts)
+    print('\n\nAfter setup_fan_distances \n')
+    print_summary(ducts)
 
 
 if __name__ == '__main__':

@@ -55,7 +55,7 @@ def process_keywords(data):
                 elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
                     fitting['flow'] = float(item[4])
                 else:  # Everything not a duct or diffuser
-                    continue
+                    pass
                 ducts['fittings'].append(fitting)
             else:
                 continue
@@ -73,19 +73,29 @@ def make_connections(fittings):
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
     # print(fittings)
+    # print(find_fitting(4, fittings))
+
     for fitting in fittings:
+        # print(type(fitting['ID']))
         # print(type(fitting['IDup']))
         if fitting['IDup'] is None:
             continue
         elif main_pattern.match(fitting['IDup']):  # main line from Tee
             # print('matched main')
+            # Find index of hyphen when present
             index_of_hyphen = fitting['IDup'].find('-')
-            tee_ID = fitting['IDup'][:index_of_hyphen]
+            tee_ID = float(fitting['IDup'][:index_of_hyphen])
+            print(tee_ID)
+            tee_fitting = find_fitting(tee_ID, fittings)
+            print(type(tee_fitting))
+            tee_fitting['IDdownMain'] = fitting['ID']
             # print(tee_ID)
         elif branch_pattern.match(fitting['IDup']):  # branch from Tee
             # print('matched branch')
             index_of_hyphen = fitting['IDup'].find('-')
-            tee_ID = fitting['IDup'][:index_of_hyphen]
+            tee_ID = int(fitting['IDup'][:index_of_hyphen])
+            tee_fitting = find_fitting(tee_ID, fittings)
+            tee_fitting['IDdownBranch'] = fitting['ID']
             # print(tee_ID)
             pass
 
@@ -115,7 +125,7 @@ def setup_flowrates(fittings):
             else:
                 tee_ID = fitting['IDup']
             fittingUp = find_fitting(float(tee_ID), fittings)
-            print(fittingUp)
+            # print(fittingUp)
             flow += fitting['flow']
             fittingUp['flow'] = flow
 
@@ -157,18 +167,18 @@ def main():
     # print(file_data)
     ducts = process_keywords(file_data)
     # print(ducts)
-    print('After process_keywords', end='\n\n')
-    print_summary(ducts)
+    # print('After process_keywords', end='\n\n')
+    # print_summary(ducts)
 
     fittings = ducts['fittings']
-    print('Making connections', end='\n\n')
+    # print('Making connections', end='\n\n')
     make_connections(fittings)
-    print('Finding flowrates and fan distances', end='\n\n')
+    # print('Finding flowrates and fan distances', end='\n\n')
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
     print('\n\nAfter setup_fan_distances \n')
-    print_summary(ducts)
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

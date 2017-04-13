@@ -1,5 +1,4 @@
 import re
-from copy import deepcopy
 
 
 def new_duct_network():
@@ -129,11 +128,11 @@ def setup_fan_distances(fittings):
 
 def setup_flowrates(fittings):
     for fitting in fittings:
-        if fitting['IDdownBranch'] is None: #Straightaways
+        if fitting['IDdownBranch'] is None:  # Straightaways
             print(fitting['IDdownMain'])
-            MainDown = find_fitting(fitting['IDdownMain'],fittings)
-            #flow = MainDown['flow']
-        elif fitting['IDdownMain'] is None: #Diffusers
+            MainDown = find_fitting(fitting['IDdownMain'], fittings)
+            # flow = MainDown['flow']
+        elif fitting['IDdownMain'] is None:  # Diffusers
             continue
         else:
             print('Tee')

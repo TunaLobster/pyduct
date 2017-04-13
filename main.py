@@ -139,7 +139,7 @@ def print_fitting(f):
         print('\n', end='')
 
     if f['length'] is not None:
-        print(' length: ', f['IDdownMain'])
+        print(' length: ', f['length'])
     if f['IDdownMain'] is not None:
         print(' IDdownMain: ', f['IDdownMain'])
     if f['flow'] is not None:

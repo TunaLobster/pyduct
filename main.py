@@ -148,7 +148,7 @@ def setup_flowrates(fittings): #Iterates, takes flow from duct downstream and ma
                 flow = BranchDown['flow'] + flow #Adds branch flow to mainflow
                 fitting['flow'] = flow #Sets flow for fitting
             else:
-                print("There was an error in the flow rate.") #Just in case
+                print("There was an error in the flow rate.") #Error message, just in case
 
 
 def print_fitting(f):

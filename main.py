@@ -41,7 +41,7 @@ def process_keywords(data):
                 ducts['roughness'] = float(item[1])
             elif item[0] == 'rounding':
                 ducts['rounding'] = item[1]
-            elif item[0] == 'fitting':
+            elif item[0] == 'fitting':  # initializing fittings information
                 fitting = new_fitting()
                 fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
@@ -50,7 +50,7 @@ def process_keywords(data):
                     fitting['IDup'] = item[3]
                 except:
                     continue
-                if item[2] == 'Duct':  # check for ducts. Ducts should have length
+                if item[2] == 'Duct':  # check for ducts. Ducts should have length feet
                     fitting['length'] = float(item[4])
                 elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
                     fitting['flow'] = float(item[4])

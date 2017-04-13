@@ -128,15 +128,28 @@ def setup_fan_distances(fittings):
 
 
 def setup_flowrates(fittings):
-    for fitting in fittings:
-        if fitting['IDdownBranch'] is None: #Straightaways
-            print(fitting['IDdownMain'])
-            MainDown = find_fitting(fitting['IDdownMain'],fittings)
-            #flow = MainDown['flow']
-        elif fitting['IDdownMain'] is None: #Diffusers
-            continue
-        else:
-            print('Tee')
+    for i in range(1000): #Iterations
+        for fitting in fittings:
+            if fitting['IDdownBranch'] is None and fitting['IDdownMain'] is not None: #Straightaways
+                MainDown = find_fitting(fitting['IDdownMain'],fittings)
+                flow = MainDown['flow']
+                if flow is None:
+                    continue
+                fitting['flow'] = flow
+            elif fitting['IDdownMain'] is None: #Diffusers
+                continue
+            elif fitting['IDdownBranch'] is not None and fitting['IDdownMain'] is not None:
+                MainDown = find_fitting(fitting['IDdownMain'],fittings)
+                flow = MainDown['flow']
+                if flow is None:
+                    continue
+                BranchDown = find_fitting(fitting['IDdownBranch'],fittings)
+                if BranchDown['flow'] is None:
+                    continue
+                flow = BranchDown['flow'] + flow
+                fitting['flow'] = flow
+            else:
+                print("Something something")
 
 
 def print_fitting(f):

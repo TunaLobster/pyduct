@@ -90,3 +90,4 @@ ENV/
 
 # pycharm IDE
 .idea/
+.idea/vsc.xml

@@ -41,16 +41,16 @@ def process_keywords(data):
                 ducts['roughness'] = float(item[1])
             elif item[0] == 'rounding':
                 ducts['rounding'] = item[1]
-            elif item[0] == 'fitting':
+            elif item[0] == 'fitting':  # initializing fittings information
                 fitting = new_fitting()
                 fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
-                fitting['flow'] = 0.0
                 try:  # checking for air handeling units and other malformed lines
+                    # if fitting['type'] == '':
                     fitting['IDup'] = item[3]
                 except:
                     continue
-                if item[2] == 'Duct':  # check for ducts. Ducts should have length
+                if item[2] == 'Duct':  # check for ducts. Ducts should have length feet
                     fitting['length'] = float(item[4])
                 elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
                     fitting['flow'] = float(item[4])
@@ -72,12 +72,22 @@ def find_fitting(ID, fittings):
 def make_connections(fittings):
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
-    print(fittings)
+    # print(fittings)
     for fitting in fittings:
-        if main_pattern.match(fitting['IDup']):  # main line from Tee
-            print('matched main')
-        elif branch_pattern.match(fitting['IDup']):
-            print('matched branch')
+        # print(type(fitting['IDup']))
+        if fitting['IDup'] is None:
+            continue
+        elif main_pattern.match(fitting['IDup']):  # main line from Tee
+            # print('matched main')
+            index_of_hyphen = fitting['IDup'].find('-')
+            tee_ID = fitting['IDup'][:index_of_hyphen]
+            # print(tee_ID)
+        elif branch_pattern.match(fitting['IDup']):  # branch from Tee
+            # print('matched branch')
+            index_of_hyphen = fitting['IDup'].find('-')
+            tee_ID = fitting['IDup'][:index_of_hyphen]
+            # print(tee_ID)
+            pass
 
 
 def setup_fan_distances(fittings):
@@ -87,13 +97,8 @@ def setup_fan_distances(fittings):
 def setup_flowrates(fittings):
     for fitting in fittings:
         if fitting['type'] == 'Diffuser':
-            print(fitting['IDup'])
             fittingUp = find_fitting(fitting['IDup'], fittings)
-            print(fittingUp)
-            #fittingUp['flow'] += fitting['flow']
-
-
-
+            fittingUp['flow'] += fitting['flow']
 
 
 def print_fitting(f):
@@ -130,9 +135,9 @@ def print_summary(ducts):
 
 def main():
     file_data = read_input_file('Duct Design Sample Input.txt')
-    print(file_data)
+    # print(file_data)
     ducts = process_keywords(file_data)
-    print(ducts)
+    # print(ducts)
     print('After process_keywords', end='\n\n')
     print_summary(ducts)
 

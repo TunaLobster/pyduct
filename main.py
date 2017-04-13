@@ -138,16 +138,29 @@ def setup_fan_distances(fittings):
                 fitting['fandist'] = fittingUp['fandist']
 
 
-def setup_flowrates(fittings):
-    for fitting in fittings:
-        if fitting['IDdownBranch'] is None:  # Straightaways
-            print(fitting['IDdownMain'])
-            MainDown = find_fitting(fitting['IDdownMain'], fittings)
-            # flow = MainDown['flow']
-        elif fitting['IDdownMain'] is None:  # Diffusers
-            continue
-        else:
-            print('Tee')
+def setup_flowrates(fittings): #Iterates, takes flow from duct downstream and makes it the flow of the fitting
+    for i in range(1000): #Iterations
+        for fitting in fittings:
+            if fitting['IDdownBranch'] is None and fitting['IDdownMain'] is not None: #Straightaways
+                MainDown = find_fitting(fitting['IDdownMain'],fittings)
+                flow = MainDown['flow']
+                if flow is None: #Avoids errors
+                    continue
+                fitting['flow'] = flow #Sets flowrate to singular downstream piece
+            elif fitting['IDdownMain'] is None: #Diffusers
+                continue
+            elif fitting['IDdownBranch'] is not None and fitting['IDdownMain'] is not None: #Tee's
+                MainDown = find_fitting(fitting['IDdownMain'],fittings)
+                flow = MainDown['flow']  #Sets partial flow to main downstream piece
+                if flow is None: #Avoids errors
+                    continue
+                BranchDown = find_fitting(fitting['IDdownBranch'],fittings)
+                if BranchDown['flow'] is None: #Avoids errors
+                    continue
+                flow = BranchDown['flow'] + flow #Adds branch flow to mainflow
+                fitting['flow'] = flow #Sets flow for fitting
+            else:
+                print("There was an error in the flow rate.") #Error message, just in case
 
 
 def print_fitting(f):

@@ -1,10 +1,12 @@
+import re
+
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
 
 
 def new_fitting():
-    fitting = dict(ID=None, type=None, IDup=None, branchUP=None, IDdownMain=None, IDBranch=None, flow=None,
+    fitting = dict(ID=None, type=None, IDup=None, branchUP=None, IDdownMain=None, IDdownBranch=None, flow=None,
                    flowMain=None, flowBranch=None, size=None, sizeMain=None, sizeBranch=None,
                    pdrop=None, pdropMain=None, pdropBranch=None, length=None, fandist=None)
     return fitting
@@ -66,7 +68,10 @@ def find_fitting(ID, fittings):
 
 
 def make_connections(fittings):
-    pass
+    pattern = re.compile(r'\d{1-2}')
+    for fitting in fittings:
+        if pattern.match(fitting['IDup']):
+            pass
 
 
 def setup_fan_distances(fittings):
@@ -78,6 +83,7 @@ def setup_flowrates(fittings):
     for fitting in fittings:
         if fitting['type'] == 'Diffuser':
             diffuser_IDs.append(fitting['ID'])
+
 
 
 

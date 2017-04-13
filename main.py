@@ -99,7 +99,7 @@ def setup_flowrates(fittings):
     branch_pattern = re.compile(r'\d+\b-branch\b')
     for fitting in fittings:
         flow = 0.0
-        if fitting['type'] == 'Diffuser':
+        if fitting['flow'] is not None:
             if fitting['IDup'] is None:
                 continue
             elif main_pattern.match(fitting['IDup']):  # main line from Tee
@@ -118,7 +118,6 @@ def setup_flowrates(fittings):
             print(fittingUp)
             flow += fitting['flow']
             fittingUp['flow'] = flow
-
 
 
 def print_fitting(f):

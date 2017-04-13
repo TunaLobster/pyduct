@@ -137,6 +137,7 @@ def setup_flowrates(fittings):
             continue
         else:
             print('Tee')
+            #OH GOD
 
 
 def print_fitting(f):

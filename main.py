@@ -1,5 +1,6 @@
 import re
 
+
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
@@ -68,14 +69,14 @@ def find_fitting(ID, fittings):
 
 
 def make_connections(fittings):
-    main_pattern = re.compile(r'\d{1-2}-main')
-    branch_pattern = re.compile(r'\d{1-2}-branch')
+    main_pattern = re.compile(r'\d+\b-main\b')
+    branch_pattern = re.compile(r'\d+\b-branch\b')
+    print(fittings)
     for fitting in fittings:
         if main_pattern.match(fitting['IDup']):  # main line from Tee
-            pass
+            print('matched main')
         elif branch_pattern.match(fitting['IDup']):
-            pass
-
+            print('matched branch')
 
 
 def setup_fan_distances(fittings):
@@ -97,14 +98,12 @@ def setup_flowrates(fittings):
 
 
 
-
-
 def print_fitting(f):
     print(' ', f['ID'], ' ', end='')
     print(f['type'], ' ', end='')
     if f['IDup'] is not None:
         print(' connects to: ', f['IDup'], end='')
-    if f['branchUP'] is not None:
+    if f['BranchUP'] is not None:
         print('-', f['branchUp'])
     else:
         print('\n', end='')
@@ -136,16 +135,18 @@ def main():
     # print(file_data)
     ducts = process_keywords(file_data)
     # print(ducts)
-    print('After process_keywords', end='\n\n')
-    print_summary(ducts)
+    # print('After process_keywords', end='\n\n')
+    # print_summary(ducts)
 
     fittings = ducts['fittings']
+    print('Making connections', end='\n\n')
     make_connections(fittings)
+    print('Finding flowrates and fan distances', end='\n\n')
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
-    print('\n\nAfter setup_fan_distances \n')
-    print_summary(ducts)
+    # print('\n\nAfter setup_fan_distances \n')
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

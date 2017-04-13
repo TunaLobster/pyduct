@@ -27,7 +27,7 @@ def process_keyworkds(data):
     # print('data: ', data)
     for line in data:
         # print('line: ', line)
-        if line.find('#') > 0:
+        if line.find('#') != -1:
             continue
         else:
             item = [x.strip() for x in line.split(',')]
@@ -129,7 +129,7 @@ def main():
     print('\n\nAfter setup_fan_distances \n')
     print_summary(ducts)
 
-
+# Charlie comment
 # end code from Dela
 # ---------------------------
 

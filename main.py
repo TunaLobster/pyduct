@@ -34,25 +34,25 @@ def process_keywords(data):
             if item[0] == 'title':
                 ducts['title'] = item[1]
             elif item[0] == 'fan_pressure':
-                ducts['fan_pressure'] = item[1]
+                ducts['fan_pressure'] = float(item[1])
             elif item[0] == 'air_density':
-                ducts['air_density'] = item[1]
+                ducts['air_density'] = float(item[1])
             elif item[0] == 'roughness':
-                ducts['roughness'] = item[1]
+                ducts['roughness'] = float(item[1])
             elif item[0] == 'rounding':
                 ducts['rounding'] = item[1]
             elif item[0] == 'fitting':
                 fitting = new_fitting()
-                fitting['ID'] = item[1]
+                fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
                 try:  # checking for air handeling units and other malformed lines
                     fitting['IDup'] = item[3]
                 except:
                     continue
                 if item[2] == 'Duct':  # check for ducts. Ducts should have length
-                    fitting['length'] = item[4]
+                    fitting['length'] = float(item[4])
                 elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
-                    fitting['flow'] = item[4]
+                    fitting['flow'] = float(item[4])
                 else:  # Everything not a duct or diffuser
                     continue
                 ducts['fittings'].append(fitting)

@@ -103,50 +103,63 @@ def make_connections(fittings):
 def setup_fan_distances(fittings):
     # fan_distance = 0
     for fitting in fittings:
-        if fitting['IDup'] is None:
-            fitting['fandist'] = 0
         if fitting['type'] == 'Air_Handling_Unit':
-            # print('AHU')
             fitting['fandist'] = 0
-        else:
-            # if current is duct take current fandist and add length
-            # apply new fandist to IDdownMain fitting
-            if fitting['type'] == 'Duct':
-                fan_distance = int(fitting['fandist']) + fitting['length']
-                # print(type(fitting['IDdownMain']))
-                fittingDown = find_fitting(fitting['IDdownMain'], fittings)
-                fittingDown['fandist'] = fan_distance
-                # print(fittingDown)
-            # if on a tee also put new fandist on branch
-            elif fitting['type'] == 'Tee':
-                fan_distance = fitting['fandist']
-                # print(fan_distance)
-                fittingDownMain = find_fitting(fitting['IDdownMain'], fittings)
-                fittingDownMain['fandist'] = fan_distance
-
-                fittingDownBranch = find_fitting(fitting['IDdownBranch'], fittings)
-                fittingDownBranch['fandist'] = fan_distance
-
-                # fitting['fandist'] =
-            elif fitting['IDup'].find('-') != -1:  # IDup is a tee
-                index_of_hyphen = fitting['IDup'].find('-')
-                tee_ID = int(fitting['IDup'][:index_of_hyphen])
-                fittingUp = find_fitting(tee_ID, fittings)
-                fitting['fandist'] = fittingUp['fandist']
-
-                fittingDown = find_fitting(fitting['IDdownMain'], fittings)
-                fittingDown['fandist'] = fan_distance
-            elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Duct':
-                fittingUp = find_fitting(int(fitting['IDup']), fittings)
-                fitting['fandist'] = fittingUp['fandist'] + fittingUp['length']
-            elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Elbow':
-                fittingUp = find_fitting(int(fitting['IDup']), fittings)
-                print(fittingUp)
-                fitting['fandist'] = fittingUp['fandist']
-                print(fitting)
-            else:
-                fittingUp = find_fitting(int(fitting['IDup']), fittings)
-                fitting['fandist'] = fittingUp['fandist']
+        elif fitting['IDup'].find('-') != -1:  # fittingUp is a tee
+            index_of_hyphen = fitting['IDup'].find('-')
+            tee_ID = int(fitting['IDup'][:index_of_hyphen])
+            fittingUp = find_fitting(tee_ID, fittings)
+            fitting['fandist'] = fittingUp['fandist']
+        elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Duct':  # fittings up is duct. Add length
+            fittingUp = find_fitting(int(fitting['IDup']), fittings)
+            fitting['fandist'] = fittingUp['fandist'] + fittingUp['length']
+        else:  # all the elbow, tee, and duct fittings
+            fittingUp = find_fitting(int(fitting['IDup']), fittings)
+            fitting['fandist'] = fittingUp['fandist']
+        # if fitting['IDup'] is None:
+        #     fitting['fandist'] = 0
+        # if fitting['type'] == 'Air_Handling_Unit':
+        #     # print('AHU')
+        #     fitting['fandist'] = 0
+        # else:
+        #     # if current is duct take current fandist and add length
+        #     # apply new fandist to IDdownMain fitting
+        #     if fitting['type'] == 'Duct':
+        #         fan_distance = int(fitting['fandist']) + fitting['length']
+        #         # print(type(fitting['IDdownMain']))
+        #         fittingDown = find_fitting(fitting['IDdownMain'], fittings)
+        #         fittingDown['fandist'] = fan_distance
+        #         # print(fittingDown)
+        #     # if on a tee also put new fandist on branch
+        #     elif fitting['type'] == 'Tee':
+        #         fan_distance = fitting['fandist']
+        #         # print(fan_distance)
+        #         fittingDownMain = find_fitting(fitting['IDdownMain'], fittings)
+        #         fittingDownMain['fandist'] = fan_distance
+        #
+        #         fittingDownBranch = find_fitting(fitting['IDdownBranch'], fittings)
+        #         fittingDownBranch['fandist'] = fan_distance
+        #
+        #         # fitting['fandist'] =
+        #     elif fitting['IDup'].find('-') != -1:  # IDup is a tee
+        #         index_of_hyphen = fitting['IDup'].find('-')
+        #         tee_ID = int(fitting['IDup'][:index_of_hyphen])
+        #         fittingUp = find_fitting(tee_ID, fittings)
+        #         fitting['fandist'] = fittingUp['fandist']
+        #
+        #         fittingDown = find_fitting(fitting['IDdownMain'], fittings)
+        #         fittingDown['fandist'] = fan_distance
+        #     elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Duct':
+        #         fittingUp = find_fitting(int(fitting['IDup']), fittings)
+        #         fitting['fandist'] = fittingUp['fandist'] + fittingUp['length']
+        #     elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Elbow':
+        #         fittingUp = find_fitting(int(fitting['IDup']), fittings)
+        #         print(fittingUp)
+        #         fitting['fandist'] = fittingUp['fandist']
+        #         print(fitting)
+        #     else:
+        #         fittingUp = find_fitting(int(fitting['IDup']), fittings)
+        #         fitting['fandist'] = fittingUp['fandist']
 
 
 def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and makes it the flow of the fitting

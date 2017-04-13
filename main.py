@@ -43,6 +43,7 @@ def process_keywords(data):
                 ducts['rounding'] = item[1]
             elif item[0] == 'fitting':  # initializing fittings information
                 fitting = new_fitting()
+                fitting['fandist'] = 0
                 fitting['ID'] = float(item[1])
                 fitting['type'] = item[2]
                 try:  # checking for air handeling units and other malformed lines
@@ -102,7 +103,8 @@ def make_connections(fittings):
 def setup_fan_distances(fittings):
     # fan_distance = 0
     for fitting in fittings:
-        fitting['fandist'] = 0
+        if fitting['IDup'] is None:
+            fitting['fandist'] = 0
         if fitting['type'] == 'Air_Handling_Unit':
             # print('AHU')
             fitting['fandist'] = 0
@@ -110,14 +112,15 @@ def setup_fan_distances(fittings):
             # if current is duct take current fandist and add length
             # apply new fandist to IDdownMain fitting
             if fitting['type'] == 'Duct':
-                fan_distance = fitting['fandist'] + fitting['length']
+                fan_distance = int(fitting['fandist']) + fitting['length']
                 # print(type(fitting['IDdownMain']))
                 fittingDown = find_fitting(fitting['IDdownMain'], fittings)
                 fittingDown['fandist'] = fan_distance
-
+                # print(fittingDown)
             # if on a tee also put new fandist on branch
             elif fitting['type'] == 'Tee':
                 fan_distance = fitting['fandist']
+                # print(fan_distance)
                 fittingDownMain = find_fitting(fitting['IDdownMain'], fittings)
                 fittingDownMain['fandist'] = fan_distance
 
@@ -133,6 +136,14 @@ def setup_fan_distances(fittings):
 
                 fittingDown = find_fitting(fitting['IDdownMain'], fittings)
                 fittingDown['fandist'] = fan_distance
+            elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Duct':
+                fittingUp = find_fitting(int(fitting['IDup']), fittings)
+                fitting['fandist'] = fittingUp['fandist'] + fittingUp['length']
+            elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Elbow':
+                fittingUp = find_fitting(int(fitting['IDup']), fittings)
+                print(fittingUp)
+                fitting['fandist'] = fittingUp['fandist']
+                print(fitting)
             else:
                 fittingUp = find_fitting(int(fitting['IDup']), fittings)
                 fitting['fandist'] = fittingUp['fandist']

@@ -82,7 +82,7 @@ def make_connections(fittings):
             tee_ID = int(fitting['IDup'][:index_of_hyphen])
             tee_fitting = find_fitting(tee_ID, fittings)
             tee_fitting['IDdownBranch'] = fitting['ID']
-        else:
+        else:  # all other fittings
             fittingUp = find_fitting(float(fitting['IDup']), fittings)
             fittingUp['IDdownMain'] = fitting['ID']
 
@@ -142,7 +142,6 @@ def print_fitting(f):
         print('-', f['branchUp'])
     else:
         print('\n', end='')
-
     if f['length'] is not None:
         print('    length: ', f['length'])
     if f['IDdownMain'] is not None:
@@ -159,7 +158,6 @@ def print_summary(ducts):
     print('title: ', ducts['title'])
     print('fan_pressure: ', ducts['fan_pressure'])
     print('air_density: ', ducts['air_density'])
-    # This is exhausting.
     print('roughness: ', ducts['roughness'])
     print('rounding: ', ducts['rounding'])
     fittings = ducts['fittings']
@@ -169,16 +167,12 @@ def print_summary(ducts):
 
 def main():
     file_data = read_input_file('Duct Design Sample Input.txt')
-    # print(file_data)
     ducts = process_keywords(file_data)
-    # print(ducts)
-    # print('After process_keywords', end='\n\n')
-    # print_summary(ducts)
+    print('After process_keywords', end='\n\n')
+    print_summary(ducts)
 
     fittings = ducts['fittings']
-    # print('Making connections', end='\n\n')
     make_connections(fittings)
-    # print('Finding flowrates and fan distances', end='\n\n')
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 

@@ -57,7 +57,7 @@ def process_keywords(data):
                 else:  # Everything not a duct or diffuser
                     pass
                 ducts['fittings'].append(fitting)
-            else:
+            else:  # start of the line in the file doesn't match anything useful. Move along. Move along.
                 continue
 
     return ducts
@@ -85,17 +85,20 @@ def make_connections(fittings):
             # Find index of hyphen when present
             index_of_hyphen = fitting['IDup'].find('-')
             tee_ID = float(fitting['IDup'][:index_of_hyphen])
-            print(tee_ID)
+            # print(tee_ID)
             tee_fitting = find_fitting(tee_ID, fittings)
-            print(type(tee_fitting))
+            # print(type(tee_fitting))
             tee_fitting['IDdownMain'] = fitting['ID']
             # print(tee_ID)
         elif branch_pattern.match(fitting['IDup']):  # branch from Tee
-            # print('matched branch')
+            # print('matched main')
+            # Find index of hyphen when present
             index_of_hyphen = fitting['IDup'].find('-')
-            tee_ID = int(fitting['IDup'][:index_of_hyphen])
+            tee_ID = float(fitting['IDup'][:index_of_hyphen])
+            # print(tee_ID)
             tee_fitting = find_fitting(tee_ID, fittings)
-            tee_fitting['IDdownBranch'] = fitting['ID']
+            # print(type(tee_fitting))
+            tee_fitting['IDdownMain'] = fitting['ID']
             # print(tee_ID)
             pass
 
@@ -131,23 +134,25 @@ def setup_flowrates(fittings):
 
 
 def print_fitting(f):
-    print(' ', f['ID'], ' ', end='')
+    print(' ', int(f['ID']), ' ', end='')
     print(f['type'], ' ', end='')
     if f['IDup'] is not None:
-        print(' connects to: ', f['IDup'], end='')
+        print('    connects to: ', f['IDup'], end='')
     if f['BranchUP'] is not None:
         print('-', f['branchUp'])
     else:
         print('\n', end='')
 
     if f['length'] is not None:
-        print(' length: ', f['IDdownMain'])
+        print('    length: ', f['length'])
     if f['IDdownMain'] is not None:
-        print(' IDdownMain: ', f['IDdownMain'])
+        print('    IDdownMain: ', f['IDdownMain'])
+    if f['IDdownBranch'] is not None:
+        print('    IDdownBranch: ', f['IDdownBranch'])
     if f['flow'] is not None:
-        print(' flow: ', f['flow'])
+        print('    flow: ', f['flow'])
     if f['fandist'] is not None:
-        print(' fandist: ', f['fandist'])
+        print('    fandist: ', f['fandist'])
 
 
 def print_summary(ducts):
@@ -167,18 +172,18 @@ def main():
     # print(file_data)
     ducts = process_keywords(file_data)
     # print(ducts)
-    # print('After process_keywords', end='\n\n')
-    # print_summary(ducts)
+    print('After process_keywords', end='\n\n')
+    print_summary(ducts)
 
     fittings = ducts['fittings']
-    # print('Making connections', end='\n\n')
+    print('Making connections', end='\n\n')
     make_connections(fittings)
-    # print('Finding flowrates and fan distances', end='\n\n')
+    print('Finding flowrates and fan distances', end='\n\n')
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
     print('\n\nAfter setup_fan_distances \n')
-    # print_summary(ducts)
+    print_summary(ducts)
 
 
 if __name__ == '__main__':

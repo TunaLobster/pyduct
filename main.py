@@ -100,7 +100,7 @@ def make_connections(fittings):
 
 
 def setup_fan_distances(fittings):
-    fan_distance = 0
+    # fan_distance = 0
     for fitting in fittings:
         fitting['fandist'] = 0
         if fitting['type'] == 'Air_Handling_Unit':
@@ -113,7 +113,6 @@ def setup_fan_distances(fittings):
                 fan_distance = fitting['fandist'] + fitting['length']
                 # print(type(fitting['IDdownMain']))
                 fittingDown = find_fitting(fitting['IDdownMain'], fittings)
-                print(fittingDown)
                 fittingDown['fandist'] = fan_distance
 
             # if on a tee also put new fandist on branch
@@ -124,6 +123,19 @@ def setup_fan_distances(fittings):
 
                 fittingDownBranch = find_fitting(fitting['IDdownBranch'], fittings)
                 fittingDownBranch['fandist'] = fan_distance
+
+                # fitting['fandist'] =
+            elif fitting['IDup'].find('-') != -1:  # IDup is a tee
+                index_of_hyphen = fitting['IDup'].find('-')
+                tee_ID = int(fitting['IDup'][:index_of_hyphen])
+                fittingUp = find_fitting(tee_ID, fittings)
+                fitting['fandist'] = fittingUp['fandist']
+
+                fittingDown = find_fitting(fitting['IDdownMain'], fittings)
+                fittingDown['fandist'] = fan_distance
+            else:
+                fittingUp = find_fitting(int(fitting['IDup']),fittings)
+                fitting['fandist'] = fittingUp['fandist']
 
 
 def setup_flowrates(fittings):

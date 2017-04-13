@@ -101,25 +101,25 @@ def make_connections(fittings):
 def setup_fan_distances(fittings):
     fan_distance = 0
     for fitting in fittings:
-        if
+        print('')
+        #if
 
 
 def setup_flowrates(fittings):
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
-    run_fit = deepcopy(fittings)
-    for fitting in run_fit:
+    for fitting in fittings:
         flow = 0.0
         if fitting['flow'] is not None:
             if fitting['IDup'] is None:
-                return
+                continue
             elif main_pattern.match(fitting['IDup']):  # main line from Tee
                 # print('matched main')
                 index_of_hyphen = fitting['IDup'].find('-')
                 tee_ID = fitting['IDup'][:index_of_hyphen]
             # print(tee_ID)
             elif branch_pattern.match(fitting['IDup']):  # branch from Tee
-                # print('matched branch')
+                print('matched branch')
                 index_of_hyphen = fitting['IDup'].find('-')
                 tee_ID = fitting['IDup'][:index_of_hyphen]
             # print(tee_ID)
@@ -127,11 +127,10 @@ def setup_flowrates(fittings):
                 tee_ID = fitting['IDup']
             fittingUp = find_fitting(float(tee_ID), fittings)
             flow += fitting['flow']
-            fittingUp['flow'] = flow
-            print(len(run_fit))
-            run_fit.remove(fitting)
-            # print(len(run_fit))
-            # setup_flowrates(run_fit)
+            if fittingUp['type'] == 'Air_Handling_Unit':
+                    return
+            else:
+                fittingUp['flow'] = flow
 
 
 def print_fitting(f):

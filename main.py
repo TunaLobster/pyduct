@@ -1,5 +1,4 @@
 import re
-from copy import deepcopy
 
 
 def new_duct_network():

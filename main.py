@@ -50,7 +50,7 @@ def process_keywords(data):
                     # if fitting['type'] == '':
                     fitting['IDup'] = item[3]
                 except:
-                    continue
+                    pass
                 if item[2] == 'Duct':  # check for ducts. Ducts should have length feet
                     fitting['length'] = float(item[4])
                 elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
@@ -99,7 +99,9 @@ def make_connections(fittings):
 
 
 def setup_fan_distances(fittings):
-    pass
+    fan_distance = 0
+    for fitting in fittings:
+        if
 
 
 def setup_flowrates(fittings):

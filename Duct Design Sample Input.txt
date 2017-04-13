@@ -36,7 +36,7 @@ fitting,  12,  Duct                 , 8-branch      , 25
 fitting,  13,  Diffuser             , 12            , 130
 fitting,  14,  Duct                 , 6-branch      , 80
 fitting,  16,  Diffuser             , 14            , 135
-fitting,  17,  Duct                 , 4-Branch      , 55
+fitting,  17,  Duct                 , 4-branch      , 55
 fitting,  18,  Tee                  , 17            
 fitting,  19,  Duct                 , 18-main       , 60
 fitting,  20,  Diffuser             , 19            , 150        

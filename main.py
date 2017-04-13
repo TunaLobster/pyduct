@@ -6,7 +6,7 @@ def new_duct_network():
 
 
 def new_fitting():
-    fitting = dict(ID=None, type=None, IDup=None, branchUP=None, IDdownMain=None, IDdownBranch=None, flow=None,
+    fitting = dict(ID=None, type=None, IDup=None, BranchUP=None, IDdownMain=None, IDdownBranch=None, flow=None,
                    flowMain=None, flowBranch=None, size=None, sizeMain=None, sizeBranch=None,
                    pdrop=None, pdropMain=None, pdropBranch=None, length=None, fandist=None)
     return fitting
@@ -68,10 +68,14 @@ def find_fitting(ID, fittings):
 
 
 def make_connections(fittings):
-    pattern = re.compile(r'\d{1-2}')
+    main_pattern = re.compile(r'\d{1-2}-main')
+    branch_pattern = re.compile(r'\d{1-2}-branch')
     for fitting in fittings:
-        if pattern.match(fitting['IDup']):
+        if main_pattern.match(fitting['IDup']):  # main line from Tee
             pass
+        elif branch_pattern.match(fitting['IDup']):
+            pass
+
 
 
 def setup_fan_distances(fittings):

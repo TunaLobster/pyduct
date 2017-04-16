@@ -23,6 +23,7 @@ def read_input_file(filename):
 def process_keywords(data):
     ducts = new_duct_network()
     for line in data:
+        line = str.lower(line)
         if line.find('#') != -1:
             continue  # comment line. not the lines we are looking for.
         else:
@@ -46,9 +47,9 @@ def process_keywords(data):
                     fitting['IDup'] = item[3]
                 except Exception:
                     pass
-                if item[2] == 'Duct':  # check for ducts. Ducts should have length feet
+                if item[2] == 'duct':  # check for ducts. Ducts should have length feet
                     fitting['length'] = float(item[4])
-                elif item[2] == 'Diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
+                elif item[2] == 'diffuser':  # check for diffusers. Diffusers should have flowrate in CFM
                     fitting['flow'] = float(item[4])
                 else:  # Everything not a duct or diffuser
                     pass
@@ -90,7 +91,7 @@ def make_connections(fittings):
 def setup_fan_distances(fittings):
     for fitting in fittings:
         # check for AHU
-        if fitting['type'] == 'Air_Handling_Unit':
+        if fitting['type'] == 'air_handling_unit':
             fitting['fandist'] = 0
         # fittingUp is a tee
         elif fitting['IDup'].find('-') != -1:
@@ -99,7 +100,7 @@ def setup_fan_distances(fittings):
             fittingUp = find_fitting(tee_ID, fittings)
             fitting['fandist'] = fittingUp['fandist']
         # fittings up is duct. Add length
-        elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'Duct':
+        elif find_fitting(int(fitting['IDup']), fittings)['type'] == 'duct':
             fittingUp = find_fitting(int(fitting['IDup']), fittings)
             fitting['fandist'] = fittingUp['fandist'] + fittingUp['length']
         # all the elbow, tee, and duct fittings
@@ -168,7 +169,7 @@ def print_summary(ducts):
 def main():
     file_data = read_input_file('Duct Design Sample Input.txt')
     ducts = process_keywords(file_data)
-    print('After process_keywords', end='\n\n')
+    print('After process_keywords:', end='\n\n')
     print_summary(ducts)
 
     fittings = ducts['fittings']
@@ -176,7 +177,7 @@ def main():
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
-    print('\n\nAfter setup_fan_distances \n')
+    print('\n\nAfter setup_flowrates and setup_fan_distances: \n')
     print_summary(ducts)
 
 

@@ -23,7 +23,7 @@ def read_input_file(filename):
 def process_keywords(data):
     ducts = new_duct_network()
     for line in data:
-        line = str.lower(line)
+        line = line.lower()
         if line.find('#') != -1:
             continue  # comment line. not the lines we are looking for.
         else:

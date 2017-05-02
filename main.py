@@ -2,6 +2,7 @@
 # Nick Nelsen
 # Stephen Sizke
 
+import math
 import re
 
 import numpy as np
@@ -225,7 +226,7 @@ Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
 """
 
 
-def duct_pressure_drop(dia, flow, length, density, roughness, c):
+def duct_pressure_drop(dia, flow, length, density, roughness):
     area = (np.pi * dia ** 2) / 4
     velocity = flow / area
     f = get_little_f(dia, velocity, roughness)
@@ -233,9 +234,22 @@ def duct_pressure_drop(dia, flow, length, density, roughness, c):
     return pdrop
 
 
-def get_duct_size(deltap):
-    # fsolve()
-    diameter = 5
+def get_duct_size(deltap, flow, length, density, roughness, v):
+    def func(vals):
+        dia = vals
+        return deltap - duct_pressure_drop(dia, flow, length, density, roughness)
+
+    finished = False
+    guess = 16
+    while not finished:
+        f = fsolve(func, guess, full_output=True)
+        if int(f[2]) == 1:
+            finished = True
+        else:
+            guess = guess / 2.0
+    diameter = math.ceil(f[0][0])
+    if diameter % 2 != 0:
+        diameter += 1
     return diameter
 
 
@@ -275,7 +289,7 @@ def main():
     file_data = read_input_file('Duct Design Sample Input.txt')
     ducts = process_keywords(file_data)
     print('After process_keywords:', end='\n\n')
-    # print_summary(ducts)
+    print_summary(ducts)
 
     # Project Progress check
     fittings = ducts['fittings']
@@ -286,10 +300,10 @@ def main():
     # Progress check 2
     for fitting in fittings:
         if fitting['type'] == 'duct':
-            get_duct_size(float(ducts['fan_pressure']))
+            fitting['size'] = get_duct_size(float(ducts['fan_pressure']), fitting['flow'], fitting['length'], ducts['air_density'], ducts['roughness'], 1800)
 
     print('\n\nAfter setup_flowrates and setup_fan_distances: \n')
-    # print_summary(ducts)
+    print_summary(ducts)
 
 
 if __name__ == '__main__':

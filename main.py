@@ -1,3 +1,7 @@
+# Charlie Johnson
+# Nick Nelsen
+# Stephen Sizke
+
 import re
 
 import numpy as np
@@ -137,28 +141,100 @@ def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and 
                 print("There was an error in the flow rate.")  # Error message, just in case
 
 
-def get_little_f(dia, c, roughness):
+"""
+TODO:
+
+def get little f(dia, c, roughness)
+    .
+    .
+    .
+    f = fsolve()
+
+def duct pressure drop(dia, flow, length, ...):
+    v = ...
+    f = gtlittle f (dia, c, roughness)
+    .
+    .
+    .
+    return pdrop
+
+def get duct size(deltap,...)
+    .
+    .
+    .
+    dia = fsolve()
+
+use chart with flow, deltap, and size to go to equation 18 to find f
+"""
+
+
+def get_little_f(dia, velocity, roughness):
     def func(vals):
-        pass
+        f = vals
+        Re = 8.5 * dia * velocity
+        left_side = 1 / np.sqrt(f)
+        right_right = (-1) * 2 * np.log((roughness / (3.7 * dia)) + (2.51 / (Re * np.sqrt(f))))
+        return right_right - left_side
 
     # need to figure out what c is
-    f = fsolve()
-    f = 0.8
+    """
+    C_o for cd3-5 Elbow, Pleated, 90 degree
+        dia - 4     6       8        10     12      14      16
+        C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
+    """
+    f = fsolve(func, 0, full_output=True)
+    """
+    finished = False
+    guess = 0.01
+    while not finished:
+        f = fsolve(f_error,(guess,),full_output=True)
+        if int(f[2]) == 1:
+            finished == True
+        else:
+            guess = guess / 2
+    return f[0][0]
+    """
     return f
 
+"""
+sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
+                [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],
+                [7.36, 1.56, 0.65, 0.39, 0.29, 0.24, 0.20, 0.17, 0.15],
+                [ 13.78, 2.98, 1.20, 0.65, 0.43, 0.33, 0.27, 0.24, 0.21],
+                [22.24, 4.92, 1.98, 1.04, 0.65, 0.47, 0.36, 0.30, 0.26],
+                [32.73, 7.36, 2.98, 1.56, 0.96, 0.65, 0.49, 0.39, 0.33],
+                [45.26, 10.32, 4.21, 2.21, 1.34, 0.90, 0.65, 0.51, 0.42],
+                [59.82, 13.78, 5.67, 2.98, 1.80, 1.20, 0.86, 0.65, 0.52],
+                [76.41, 17.75, 7.36, 3.88, 2.35, 1.56, 1.11, 0.83, 0.65]])
 
-def duct_pressure_drop(dia, flow, length, density, roughness):
+sd5cs = np.array([0.13, 0.16, 0.57, 0.74, 0.74, 0.70, 0.65, 0.60, 0.56],         
+                 [0.20, 0.13, 0.15, 0.16, 0.28, 0.57, 0.69, 0.74, 0.75],
+                 [0.90, 0.13, 0.13, 0.14, 0.15, 0.16, 0.20, 0.42, 0.57],
+                 [2.88, 0.20, 0.14, 0.13, 0.14, 0.15, 0.15, 0.16, 0.34],
+                 [6.25, 0.37, 0.17, 0.14, 0.13, 0.14,  0.14, 0.15, 0.15],
+                 [11.88, 0.90, 0.20, 0.13, 0.14, 0.13, 0.14, 0.14, 0.15],
+                 [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
+                 [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
+                 [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
+
+Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])
+A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])
+
+D = np.array([4,6,8,10,12,14,16])
+Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
+"""
+def duct_pressure_drop(dia, flow, length, density, roughness, c):
     area = (np.pi * dia ** 2) / 4
     velocity = flow / area
-    c = int()
-    f = get_little_f(dia, c, roughness)
+    f = get_little_f(dia, velocity, roughness)
     pdrop = ((12 * f * length) / dia) * density * (velocity / 1097)
     return pdrop
 
 
 def get_duct_size(deltap):
     # fsolve()
-    pass
+    diameter = 5
+    return diameter
 
 
 def print_fitting(f):
@@ -199,10 +275,16 @@ def main():
     print('After process_keywords:', end='\n\n')
     print_summary(ducts)
 
+    # Project Progress check
     fittings = ducts['fittings']
     make_connections(fittings)
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
+
+    # Progress check 2
+    for fitting in fittings:
+        if fitting['type'] == 'duct':
+            get_duct_size(float(ducts['fan_pressure']))
 
     print('\n\nAfter setup_flowrates and setup_fan_distances: \n')
     print_summary(ducts)

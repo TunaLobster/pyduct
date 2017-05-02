@@ -1,5 +1,8 @@
 import re
 
+import numpy as np
+from scipy.optimize import fsolve
+
 
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
@@ -132,6 +135,30 @@ def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and 
                 fitting['flow'] = flow  # Sets flow for fitting
             else:
                 print("There was an error in the flow rate.")  # Error message, just in case
+
+
+def get_little_f(dia, c, roughness):
+    def func(vals):
+        pass
+
+    # need to figure out what c is
+    f = fsolve()
+    f = 0.8
+    return f
+
+
+def duct_pressure_drop(dia, flow, length, density, roughness):
+    area = (np.pi * dia ** 2) / 4
+    velocity = flow / area
+    c = int()
+    f = get_little_f(dia, c, roughness)
+    pdrop = ((12 * f * length) / dia) * density * (velocity / 1097)
+    return pdrop
+
+
+def get_duct_size(deltap):
+    # fsolve()
+    pass
 
 
 def print_fitting(f):

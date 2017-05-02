@@ -171,31 +171,31 @@ use chart with flow, deltap, and size to go to equation 18 to find f
 def get_little_f(dia, velocity, roughness):
     def func(vals):
         f = vals
-        Re = 8.5 * dia * velocity
+        Re = 8.5 * (dia / 12) * velocity
         left_side = 1 / np.sqrt(f)
-        right_right = (-1) * 2 * np.log((roughness / (3.7 * dia)) + (2.51 / (Re * np.sqrt(f))))
+        right_right = (-1) * 2 * np.log((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
         return right_right - left_side
 
-    # need to figure out what c is
-    """
-    C_o for cd3-5 Elbow, Pleated, 90 degree
-        dia - 4     6       8        10     12      14      16
-        C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
-    """
-    f = fsolve(func, 0, full_output=True)
-    """
+    # # need to figure out what c is
+    # """
+    # C_o for cd3-5 Elbow, Pleated, 90 degree
+    #     dia - 4     6       8        10     12      14      16
+    #     C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
+    # """
+    # f = fsolve(func, .001, full_output=True)
     finished = False
-    guess = 0.01
+    guess = 1000000
     while not finished:
-        f = fsolve(f_error,(guess,),full_output=True)
+        f = fsolve(func, guess, full_output=True)
         if int(f[2]) == 1:
-            finished == True
+            finished = True
         else:
-            guess = guess / 2
+            guess = guess / 2.0
     return f[0][0]
-    """
-    return f
 
+
+print('test point')
+print(get_little_f(24, 2000, .0003))  # should be about 0.2
 """
 sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
                 [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],
@@ -223,6 +223,8 @@ A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])
 D = np.array([4,6,8,10,12,14,16])
 Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
 """
+
+
 def duct_pressure_drop(dia, flow, length, density, roughness, c):
     area = (np.pi * dia ** 2) / 4
     velocity = flow / area
@@ -273,7 +275,7 @@ def main():
     file_data = read_input_file('Duct Design Sample Input.txt')
     ducts = process_keywords(file_data)
     print('After process_keywords:', end='\n\n')
-    print_summary(ducts)
+    # print_summary(ducts)
 
     # Project Progress check
     fittings = ducts['fittings']
@@ -287,7 +289,7 @@ def main():
             get_duct_size(float(ducts['fan_pressure']))
 
     print('\n\nAfter setup_flowrates and setup_fan_distances: \n')
-    print_summary(ducts)
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

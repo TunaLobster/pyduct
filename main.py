@@ -211,7 +211,12 @@ def duct_pressure_drop(dia, flow, length, density, roughness):
     return pdrop
 
 def pressure_drop_sum(diffuser_ID,fittings):
-    #for fitting in
+    diffuser = find_fitting(diffuser_ID,fittings)
+    sum = diffuser['pdrop']
+    a = 2
+    while a > 1:
+
+
     return 0
 
 def get_duct_size(deltap, flow, length, density, roughness, v):

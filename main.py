@@ -79,7 +79,7 @@ def largest_path(fittings):  # Finds the diffuser with the longest path to the f
         if fitting['type'] == 'diffuser':
             if fitting['fandist'] > fitting_compare['fandist']:  # compare fan distances
                 fitting_compare = fitting  # sets new comparison
-    return fitting_compare['ID']
+    return fitting_compare
 
 
 # PLEASE PUSH

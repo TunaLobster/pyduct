@@ -183,8 +183,8 @@ def get_little_f(dia, velocity, roughness):
     return f
 
 
-#print('test point')
-#print(get_little_f(24, 2000, .0003))  # should be about 0.02
+# print('test point')
+# print(get_little_f(24, 2000, .0003))  # should be about 0.02
 """
     # # need to figure out what c is
     # 
@@ -195,6 +195,7 @@ def get_little_f(dia, velocity, roughness):
     # f = fsolve(func, .001, full_output=True)
 """
 
+
 def largest_path(fittings):  # Finds the diffuser with the longest path to the fan
     fitting_compare = find_fitting(1, fittings)  # Sets the initial fitting that will be compared
     for fitting in fittings:
@@ -203,6 +204,7 @@ def largest_path(fittings):  # Finds the diffuser with the longest path to the f
                 fitting_compare = fitting  # sets new comparison
     return fitting_compare
 
+
 def duct_pressure_drop(dia, flow, length, density, roughness):
     area = (np.pi * dia ** 2) / 4
     velocity = flow / area
@@ -210,14 +212,15 @@ def duct_pressure_drop(dia, flow, length, density, roughness):
     pdrop = ((12 * f * length) / dia) * density * (velocity / 1097)
     return pdrop
 
-def pressure_drop_sum(diffuser_ID,fittings):
-    diffuser = find_fitting(diffuser_ID,fittings)
+
+def pressure_drop_sum(diffuser_ID, fittings):
+    diffuser = find_fitting(diffuser_ID, fittings)
     sum = diffuser['pdrop']
     a = 2
     while a > 1:
-
-
+        pass
     return 0
+
 
 def get_duct_size(deltap, flow, length, density, roughness, v):
     def func(vals):

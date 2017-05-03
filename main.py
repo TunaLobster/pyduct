@@ -1,6 +1,6 @@
 # Charlie Johnson
 # Nick Nelsen
-# Stephen Ziske
+# Stephen Sziske
 
 import math
 import re
@@ -145,7 +145,7 @@ def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and 
 """
 TODO:
 
-def get little f(dia, c, roughness)
+def get little f(dia, velocity, roughness)
     .
     .
     .
@@ -172,24 +172,18 @@ use chart with flow, deltap, and size to go to equation 18 to find f
 def get_little_f(dia, velocity, roughness):
     def func(vals):
         f = vals
-        Re = 8.5 * (dia / 12) * velocity
+        Re = 8.5 * (dia / 12) * velocity # eqn (21)
+
+        # eqn (19) 2013 version corrected for units
         left_side = 1 / np.sqrt(f)
-        right_right = (-1) * 2 * np.log((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
-        return right_right - left_side
+        right_right = (-1) * 2 * np.log10((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
+        return abs(right_right - left_side)
 
-    finished = False
-    guess = 1000000
-    while not finished:
-        f = fsolve(func, guess, full_output=True)
-        if int(f[2]) == 1:
-            finished = True
-        else:
-            guess = guess / 2.0
-    return f[0][0]
-
+    f = fsolve(func, .001)
+    return f
 
 print('test point')
-print(get_little_f(24, 2000, .0003))  # should be about 0.2
+print(get_little_f(24, 2000, .0003))  # should be about 0.02
 """
     # # need to figure out what c is
     # 

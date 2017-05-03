@@ -1,6 +1,6 @@
 # Charlie Johnson
 # Nick Nelsen
-# Stephen Sziske
+# Stephen Ziske
 
 import math
 import re

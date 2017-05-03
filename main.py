@@ -72,6 +72,13 @@ def find_fitting(ID, fittings):
         if fitting['ID'] == ID:
             return fitting
 
+def largest_path(fittings): #Finds the diffuser with the longest path to the fan
+    fitting_compare = find_fitting(1, fittings) #Sets the initial fitting that will be compared
+    for fitting in fittings:
+        if fitting['type'] == 'diffuser':
+            if fitting['fandist'] > fitting_compare['fandist']: #compare fan distances
+                fitting_compare = fitting #sets new comparison
+    return fitting_compare['ID']
 
 def make_connections(fittings):
     # regex patterns for matching main and branch ID up text

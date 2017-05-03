@@ -10,7 +10,7 @@ Created for college computer methods course using Python 3.5.2. YMMV.
 
 ```
 # Lines starting with a # character are comments to be ignored
-# You may have comment lines anywhere in the file\
+# You may have comment lines anywhere in the file
 #
 # Other lines in the file are identified by specific KEYWORDS, followed by data
 # KEYWORDS may include Capital letters, but capitalization will be ignored

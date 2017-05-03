@@ -145,7 +145,7 @@ def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and 
 """
 TODO:
 
-def get little f(dia, c, roughness)
+def get little f(dia, velocity, roughness)
     .
     .
     .
@@ -172,31 +172,18 @@ use chart with flow, deltap, and size to go to equation 18 to find f
 def get_little_f(dia, velocity, roughness):
     def func(vals):
         f = vals
-        Re = 8.5 * (dia / 12) * velocity
+        Re = 8.5 * (dia / 12) * velocity # eqn (21)
+
+        # eqn (19) 2013 version corrected for units
         left_side = 1 / np.sqrt(f)
-        right_right = (-1) * 2 * np.log((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
-        return right_right - left_side
+        right_right = (-1) * 2 * np.log10((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
+        return abs(right_right - left_side)
 
-    # # need to figure out what c is
-    # """
-    # C_o for cd3-5 Elbow, Pleated, 90 degree
-    #     dia - 4     6       8        10     12      14      16
-    #     C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
-    # """
-    # f = fsolve(func, .001, full_output=True)
-    finished = False
-    guess = 1000000
-    while not finished:
-        f = fsolve(func, guess, full_output=True)
-        if int(f[2]) == 1:
-            finished = True
-        else:
-            guess = guess / 2.0
-    return f[0][0]
-
+    f = fsolve(func, .001)
+    return f
 
 print('test point')
-print(get_little_f(24, 2000, .0003))  # should be about 0.2
+print(get_little_f(24, 2000, .0003))  # should be about 0.02
 """
 sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
                 [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],

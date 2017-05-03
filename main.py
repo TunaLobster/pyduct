@@ -72,14 +72,17 @@ def find_fitting(ID, fittings):
         if fitting['ID'] == ID:
             return fitting
 
-def largest_path(fittings): #Finds the diffuser with the longest path to the fan
-    fitting_compare = find_fitting(1, fittings) #Sets the initial fitting that will be compared
+
+def largest_path(fittings):  # Finds the diffuser with the longest path to the fan
+    fitting_compare = find_fitting(1, fittings)  # Sets the initial fitting that will be compared
     for fitting in fittings:
         if fitting['type'] == 'diffuser':
-            if fitting['fandist'] > fitting_compare['fandist']: #compare fan distances
-                fitting_compare = fitting #sets new comparison
+            if fitting['fandist'] > fitting_compare['fandist']:  # compare fan distances
+                fitting_compare = fitting  # sets new comparison
     return fitting_compare['ID']
-#PLEASE PUSH
+
+
+# PLEASE PUSH
 
 def make_connections(fittings):
     # regex patterns for matching main and branch ID up text
@@ -180,7 +183,7 @@ use chart with flow, deltap, and size to go to equation 18 to find f
 def get_little_f(dia, velocity, roughness):
     def func(vals):
         f = vals
-        Re = 8.5 * (dia / 12) * velocity # eqn (21)
+        Re = 8.5 * (dia / 12) * velocity  # eqn (21)
 
         # eqn (19) 2013 version corrected for units
         left_side = 1 / np.sqrt(f)
@@ -189,6 +192,7 @@ def get_little_f(dia, velocity, roughness):
 
     f = fsolve(func, .001)
     return f
+
 
 print('test point')
 print(get_little_f(24, 2000, .0003))  # should be about 0.02
@@ -274,6 +278,17 @@ def interp2D(x, y, xlist, ylist, zmatrix):
 
 
 def get_connector_pdrop(dia, pressure, flow, type, outlet_flow=None, outlet_dia=None, branch=False):
+    '''
+    
+    :param dia: diameter at upstream side
+    :param pressure: pressure at upstream side
+    :param flow: flow at upstream side
+    :param type: type of fitting. Tee or elbow
+    :param outlet_flow: used for tees for branch or main
+    :param outlet_dia: used for tees for branch or main
+    :param branch: boolean
+    :return: 
+    '''
     if type == 'tee':
         Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
         A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common

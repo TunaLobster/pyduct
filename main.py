@@ -1,3 +1,5 @@
+# MAE 3403 PyDuct Design Project
+# 5/5/17
 # Charlie Johnson
 # Nick Nelsen
 # Stephen Ziske
@@ -7,6 +9,10 @@ import re
 
 import numpy as np
 from scipy.optimize import fsolve
+
+import warnings
+
+warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
 
 
 def new_duct_network():
@@ -145,12 +151,6 @@ def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and 
 """
 TODO:
 
-def get little f(dia, velocity, roughness)
-    .
-    .
-    .
-    f = fsolve()
-
 def duct pressure drop(dia, flow, length, ...):
     v = ...
     f = gtlittle f (dia, c, roughness)
@@ -177,24 +177,21 @@ def get_little_f(dia, velocity, roughness):
         # eqn (19) 2013 version corrected for units
         left_side = 1 / np.sqrt(f)
         right_right = (-1) * 2 * np.log10((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
-        return abs(right_right - left_side)
+        return (right_right - left_side)
 
-    f = fsolve(func, .001)
-    return f
+    guess = 10
+    finished = False
+    while not finished:
+        f = fsolve(func, guess, full_output=True)
+        if int(f[2]) == 1:  # check solution flag
+            finished = True
+        else:
+            guess = abs(guess / 2.0)  # update guess
+    return f[0][0]
 
 
-# print('test point')
 # print(get_little_f(24, 2000, .0003))  # should be about 0.02
-"""
-    # # need to figure out what c is
-    # 
-    # C_o for cd3-5 Elbow, Pleated, 90 degree
-    #     dia - 4     6       8        10     12      14      16
-    #     C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
-    # 
-    # f = fsolve(func, .001, full_output=True)
-"""
-
+# print('test point')
 
 def largest_path(fittings):  # Finds the diffuser with the longest path to the fan
     fitting_compare = find_fitting(1, fittings)  # Sets the initial fitting that will be compared
@@ -213,13 +210,34 @@ def duct_pressure_drop(dia, flow, length, density, roughness):
     return pdrop
 
 
-def pressure_drop_sum(diffuser_ID, fittings):
-    diffuser = find_fitting(diffuser_ID, fittings)
-    sum = diffuser['pdrop']
-    a = 2
-    while a > 1:
-        pass
-    return 0
+# Nick and Stephen
+def pressure_drop_sum(fittings):
+    diffuser = largest_path(fittings)
+    delta_psum = 0  # initialize running pressure loss summation
+    while diffuser['type'] != 'air_handling_unit':
+        # if IDup is a tee
+        if diffuser['IDup'].find('-') != -1:
+            index_of_hyphen = diffuser['IDup'].find('-')
+            tee_ID = int(diffuser['IDup'][:index_of_hyphen])
+
+        # # if IDup is elbow
+        # elif diffuser(int(fitting['IDup']), fittings)['type'] == 'duct':
+        #     fittingUp = find_fitting(int(fitting['IDup']), fittings)
+        else:  # duct or elbow
+            tee_ID = int(diffuser['IDup'])
+
+        next_fitting = find_fitting(tee_ID, fittings)  # input correct tee_ID= IDup for fitting type
+
+        if next_fitting['pdrop'] is None:
+            next_fitting['pdrop'] = 0.0
+        if next_fitting['pdropMain'] is None:
+            next_fitting['pdropMain'] = 0.0
+        if next_fitting['pdropBranch'] is None:
+            next_fitting['pdropBranch'] = 0.0
+
+        delta_psum += (next_fitting['pdrop'] + next_fitting['pdropBranch'] + next_fitting['pdropMain'])
+        diffuser = next_fitting
+    return delta_psum
 
 
 def get_duct_size(deltap, flow, length, density, roughness, v):
@@ -384,10 +402,19 @@ def main():
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
 
+    # Nick check p_sum 5/3/17
+    print('test running pressure loss sum')
+    # print(largest_path(fittings))
+    # print(largest_path(fittings)['IDup'])
+    # print(find_fitting(int(largest_path(fittings)['IDup']),fittings))
+    print(pressure_drop_sum(fittings))
+    print('Nick test is done')
+
     # Progress check 2
     for fitting in fittings:
         if fitting['type'] == 'duct':
-            # fitting['size'] = get_duct_size(float(ducts['fan_pressure']), fitting['flow'], fitting['length'], ducts['air_density'], ducts['roughness'], 1800)
+            # fitting['size'] = get_duct_size(float(ducts['fan_pressure']), fitting['flow'], fitting['length'],
+            # ducts['air_density'], ducts['roughness'], 1800)
             pass
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)

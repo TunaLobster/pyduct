@@ -148,25 +148,7 @@ def setup_flowrates(fittings):  # Iterates, takes flow from duct downstream and 
                 print("There was an error in the flow rate.")  # Error message, just in case
 
 
-"""
-TODO:
-
-def duct pressure drop(dia, flow, length, ...):
-    v = ...
-    f = gtlittle f (dia, c, roughness)
-    .
-    .
-    .
-    return pdrop
-
-def get duct size(deltap,...)
-    .
-    .
-    .
-    dia = fsolve()
-
-use chart with flow, deltap, and size to go to equation 18 to find f
-"""
+# TODO: Use chart with flow, deltap, and size to go to equation 18 to find f
 
 
 def get_little_f(dia, velocity, roughness):
@@ -246,7 +228,7 @@ def get_duct_size(deltap, flow, length, density, roughness, v):
         return deltap - duct_pressure_drop(dia, flow, length, density, roughness)
 
     finished = False
-    guess = 16
+    guess = 50
     while not finished:
         f = fsolve(func, guess, full_output=True)
         if int(f[2]) == 1:
@@ -254,8 +236,6 @@ def get_duct_size(deltap, flow, length, density, roughness, v):
         else:
             guess = guess / 2.0
     diameter = math.ceil(f[0][0])
-    if diameter % 2 != 0:
-        diameter += 1
     return diameter
 
 

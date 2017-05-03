@@ -280,13 +280,13 @@ def interp2D(x, y, xlist, ylist, zmatrix):
 def get_connector_pdrop(dia, pressure, flow, type, outlet_flow=None, outlet_dia=None, branch=False):
     '''
     
-    :param dia: 
-    :param pressure: 
-    :param flow: 
-    :param type: 
-    :param outlet_flow: 
-    :param outlet_dia: 
-    :param branch: 
+    :param dia: diameter at upstream side
+    :param pressure: pressure at upstream side
+    :param flow: flow at upstream side
+    :param type: type of fitting. Tee or elbow
+    :param outlet_flow: used for tees for branch or main
+    :param outlet_dia: used for tees for branch or main
+    :param branch: boolean
     :return: 
     '''
     if type == 'tee':

@@ -1,5 +1,5 @@
 # pyduct
-HVAC duct pressure drop and flowrate calculations
+HVAC duct pressure drop, flowrate calculations, and sizing. Uses equal friction method.
 
 Created for college computer methods course using Python 3.5.2. YMMV.
 

@@ -347,7 +347,7 @@ def main():
     ducts = process_keywords(file_data)
     print('After process_keywords:', end='\n\n')
     print_summary(ducts)
-
+    #git this
     # Project Progress check
     fittings = ducts['fittings']
     make_connections(fittings)

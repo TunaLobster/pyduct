@@ -177,13 +177,6 @@ def get_little_f(dia, velocity, roughness):
         right_right = (-1) * 2 * np.log((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
         return right_right - left_side
 
-    # # need to figure out what c is
-    # """
-    # C_o for cd3-5 Elbow, Pleated, 90 degree
-    #     dia - 4     6       8        10     12      14      16
-    #     C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
-    # """
-    # f = fsolve(func, .001, full_output=True)
     finished = False
     guess = 1000000
     while not finished:
@@ -198,31 +191,13 @@ def get_little_f(dia, velocity, roughness):
 print('test point')
 print(get_little_f(24, 2000, .0003))  # should be about 0.2
 """
-sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
-                [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],
-                [7.36, 1.56, 0.65, 0.39, 0.29, 0.24, 0.20, 0.17, 0.15],
-                [13.78, 2.98, 1.20, 0.65, 0.43, 0.33, 0.27, 0.24, 0.21],
-                [22.24, 4.92, 1.98, 1.04, 0.65, 0.47, 0.36, 0.30, 0.26],
-                [32.73, 7.36, 2.98, 1.56, 0.96, 0.65, 0.49, 0.39, 0.33],
-                [45.26, 10.32, 4.21, 2.21, 1.34, 0.90, 0.65, 0.51, 0.42],
-                [59.82, 13.78, 5.67, 2.98, 1.80, 1.20, 0.86, 0.65, 0.52],
-                [76.41, 17.75, 7.36, 3.88, 2.35, 1.56, 1.11, 0.83, 0.65]])
-
-sd5cs = np.array([0.13, 0.16, 0.57, 0.74, 0.74, 0.70, 0.65, 0.60, 0.56],         
-                 [0.20, 0.13, 0.15, 0.16, 0.28, 0.57, 0.69, 0.74, 0.75],
-                 [0.90, 0.13, 0.13, 0.14, 0.15, 0.16, 0.20, 0.42, 0.57],
-                 [2.88, 0.20, 0.14, 0.13, 0.14, 0.15, 0.15, 0.16, 0.34],
-                 [6.25, 0.37, 0.17, 0.14, 0.13, 0.14,  0.14, 0.15, 0.15],
-                 [11.88, 0.90, 0.20, 0.13, 0.14, 0.13, 0.14, 0.14, 0.15],
-                 [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
-                 [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
-                 [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
-
-Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])
-A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])
-
-D = np.array([4,6,8,10,12,14,16])
-Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
+    # # need to figure out what c is
+    # 
+    # C_o for cd3-5 Elbow, Pleated, 90 degree
+    #     dia - 4     6       8        10     12      14      16
+    #     C_o - 0.57  0.43    0.34    0.28    0.26    0.25    0.25
+    # 
+    # f = fsolve(func, .001, full_output=True)
 """
 
 
@@ -251,6 +226,94 @@ def get_duct_size(deltap, flow, length, density, roughness, v):
     if diameter % 2 != 0:
         diameter += 1
     return diameter
+
+
+def findBetween(x, xlist):
+    # iterate over xlist to find where x fits in
+    for position in range(0, len(xlist) - 1):
+        # check if the current iteration in xlist is good
+        if (xlist[position] <= x <= xlist[position + 1]) or (xlist[position] >= x >= xlist[position + 1]):
+            return position
+
+
+def interp1D(x, xlist, ylist):
+    # insert code here to perform single interpolation
+    #  This function MUST call "findBetween"
+
+    # find between value
+    position = findBetween(x, xlist)
+
+    # gather needed numbers from xlist and ylist
+    x1 = xlist[position]
+    x3 = xlist[position + 1]
+    y1 = ylist[position]
+    y3 = ylist[position + 1]
+
+    # interpolate value of y
+    y = (((x - x1) * (y3 - y1)) / (x3 - x1)) + y1
+    return y
+
+
+def interp2D(x, y, xlist, ylist, zmatrix):
+    # insert code here to perform double interpolation
+    #  This function MUST call "findBetween"
+    #  This function MUST call "interp1D" twice
+
+    # find the correct column to use
+    yposition = findBetween(y, ylist)
+
+    # extract and interpolate each column
+    x1 = interp1D(x, xlist, zmatrix[:, yposition])
+    x2 = interp1D(x, xlist, zmatrix[:, yposition + 1])
+
+    # interpolate between columns
+    z = interp1D(y, ylist[yposition:yposition + 2], [x1, x2])
+    return z
+
+
+def get_connector_pdrop(dia, pressure, flow, type, outlet_flow=None, outlet_dia=None, branch=False):
+    if type == 'tee':
+        Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
+        A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common
+
+        # Table from 2009 ASHRAE Handbook 21.50 for SD5-10 Tee, Concial Branch Tapered into Body, Diverging
+        # c_branch values
+        sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
+                          [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],
+                          [7.36, 1.56, 0.65, 0.39, 0.29, 0.24, 0.20, 0.17, 0.15],
+                          [13.78, 2.98, 1.20, 0.65, 0.43, 0.33, 0.27, 0.24, 0.21],
+                          [22.24, 4.92, 1.98, 1.04, 0.65, 0.47, 0.36, 0.30, 0.26],
+                          [32.73, 7.36, 2.98, 1.56, 0.96, 0.65, 0.49, 0.39, 0.33],
+                          [45.26, 10.32, 4.21, 2.21, 1.34, 0.90, 0.65, 0.51, 0.42],
+                          [59.82, 13.78, 5.67, 2.98, 1.80, 1.20, 0.86, 0.65, 0.52],
+                          [76.41, 17.75, 7.36, 3.88, 2.35, 1.56, 1.11, 0.83, 0.65]])
+        # c_main values
+        sd5cm = np.array([[0.13, 0.16, 0.57, 0.74, 0.74, 0.70, 0.65, 0.60, 0.56],
+                          [0.20, 0.13, 0.15, 0.16, 0.28, 0.57, 0.69, 0.74, 0.75],
+                          [0.90, 0.13, 0.13, 0.14, 0.15, 0.16, 0.20, 0.42, 0.57],
+                          [2.88, 0.20, 0.14, 0.13, 0.14, 0.15, 0.15, 0.16, 0.34],
+                          [6.25, 0.37, 0.17, 0.14, 0.13, 0.14, 0.14, 0.15, 0.15],
+                          [11.88, 0.90, 0.20, 0.13, 0.14, 0.13, 0.14, 0.14, 0.15],
+                          [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
+                          [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
+                          [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
+        p_common = pressure
+        A_common = (np.pi * dia ** 2) / 4
+        A_outlet = (np.pi * outlet_dia ** 2) / 4
+        if branch:
+            c_branch = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cb)
+            pdrop = c_branch * p_common
+        else:
+            c_main = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cm)
+            pdrop = c_main * p_common
+    elif type == 'elbow':
+        D = np.array([4, 6, 8, 10, 12, 14, 16])
+        Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
+        c_o = interp1D(dia, D, Co)
+        pdrop = c_o * pressure
+    else:
+        print('Unknown type to find pdrop of')
+    return pdrop
 
 
 def print_fitting(f):
@@ -300,9 +363,9 @@ def main():
     # Progress check 2
     for fitting in fittings:
         if fitting['type'] == 'duct':
-            fitting['size'] = get_duct_size(float(ducts['fan_pressure']), fitting['flow'], fitting['length'], ducts['air_density'], ducts['roughness'], 1800)
-
-    print('\n\nAfter setup_flowrates and setup_fan_distances: \n')
+            # fitting['size'] = get_duct_size(float(ducts['fan_pressure']), fitting['flow'], fitting['length'], ducts['air_density'], ducts['roughness'], 1800)
+            pass
+    print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
 
 

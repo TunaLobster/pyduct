@@ -4,7 +4,6 @@
 # Nick Nelsen
 # Stephen Ziske
 
-import math
 import re
 import warnings
 
@@ -160,14 +159,14 @@ def get_little_f(dia, velocity, roughness):
         right_right = (-1) * 2 * np.log10((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
         return (right_right - left_side)
 
-    guess = 10
+    guess = 1000000
     finished = False
     while not finished:
-        f = fsolve(func, guess, full_output=True)
+        f = fsolve(func, guess, xtol=.01, full_output=True)
         if int(f[2]) == 1:  # check solution flag
             finished = True
         else:
-            guess = abs(guess / 2.0)  # update guess
+            guess = guess / 2.0  # update guess
     return f[0][0]
 
 
@@ -226,21 +225,26 @@ def pressure_drop_sum(fittings):
     return delta_psum
 
 
-def get_duct_size(deltap, flow, length, density, roughness, v):
+def get_duct_size(deltap, flow, length, density, roughness):
     def func(vals):
         dia = vals
         return deltap - duct_pressure_drop(dia, flow, length, density, roughness)
 
     finished = False
-    guess = 50
+    guess = .05
     while not finished:
-        f = fsolve(func, guess, full_output=True)
+        print(guess)
+        f = fsolve(func, guess, xtol=.01, full_output=True)
         if int(f[2]) == 1:
             finished = True
         else:
-            guess = guess / 2.0
+            guess = guess * 2.0
     diameter = f[0][0]
     return diameter
+
+
+print('test point #5')
+print(get_duct_size(.3, 800, 12, .075, .0003))
 
 
 def findBetween(x, xlist):
@@ -344,6 +348,8 @@ def elbow_pressure_drop(dia, flow, density):
 
 print('test points #4')
 print(elbow_pressure_drop(12, 800, .075))
+
+
 # x = elbow_pressure_drop(input mess here)
 
 def optimize_system(ducts):

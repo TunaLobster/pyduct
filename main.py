@@ -286,7 +286,7 @@ def interp2D(x, y, xlist, ylist, zmatrix):
     return z
 
 
-def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch=False):
+def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
     Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
     A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common
 
@@ -326,7 +326,7 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch=False)
 
 
 print('test point #3')
-print(tee_pressure_drop(12, .075, 800, 500, 10, False))
+print(tee_pressure_drop(12, .075, 800, 500, 10, True))
 
 
 def elbow_pressure_drop(dia, flow, density):
@@ -347,7 +347,7 @@ print(elbow_pressure_drop(12, 800, .075))
 
 
 def optimize_system(ducts):
-    density = ducts['density']
+    density = ducts['air_density']
     roughness = ducts['roughness']
     fan_pressure = ducts['fan_pressure']
     pdrop_old = 1
@@ -409,7 +409,7 @@ def main():
     print('Nick test is done')
 
     # Progress check 2
-    optimize_system(ducts)
+    # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
 

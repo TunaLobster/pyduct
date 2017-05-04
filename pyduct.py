@@ -462,3 +462,7 @@ def calculate(filename):
     optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
+
+if  __name__ == '__main__':
+    filename = 'Duct Design Sample Input.txt'
+    calculate(filename)

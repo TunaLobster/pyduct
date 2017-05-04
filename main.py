@@ -5,16 +5,18 @@
 # Stephen Ziske
 
 import re
-import warnings
 import sys
+import warnings
+
+import numpy as np
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtCore import QStringListModel
-from pyduct_ui import Ui_Dialog
-import numpy as np
 from scipy.optimize import fsolve
 
+from pyduct_ui import Ui_Dialog
+
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
+
 
 class main_window(QDialog):
     def __init__(self):
@@ -47,11 +49,10 @@ if __name__ == "__main__":
     app.exec_()
 
 
-
-
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
+
 
 def new_fitting():
     fitting = dict(ID=None, type=None, IDup=None, BranchUP=None, IDdownMain=None, IDdownBranch=None, flow=None,
@@ -415,14 +416,32 @@ def optimize_system(ducts):
             ID = int(fitting['IDup'])
             longest_route.append(ID)
             fitting = find_fitting(ID, ducts['fittings'])
+
+        # error handling. should be deleted once confidence is built
         if fitting is None:
             print(fitting)
             print(longest_route)
-            quit(5)
+            raise ValueError('Fitting dictionary was empty')
 
     print(longest_route)
-    # while pdrop_old != pdrop_new:
-    #     pass
+    while pdrop_old != pdrop_new:
+        # TODO: Write code so this part actually works
+        pdrop_old = pdrop_new = 1
+        for i in range(len(longest_route)):
+            ID = longest_route[i]
+            fitting = find_fitting(ID, ducts['fittings'])
+            if fitting['type'] == 'tee':
+                if fitting['IDdownMain'] == longest_route[i + 1]:
+                    # fitting['pdropMain'] = tee_pressure_drop()
+                    pass
+                elif fitting['IDdownBranch'] == longest_route[i + 1]:
+                    pass
+            elif fitting['type'] == 'elbow':
+                pass
+            elif fitting['type'] == 'duct':
+                pass
+            else:
+                raise Exception('just panic. it\'s broken')
 
 
 def print_fitting(f):
@@ -481,6 +500,7 @@ def main():
     optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
+
 
 if __name__ == '__main__':
     main()

@@ -239,7 +239,7 @@ def get_duct_size(deltap, flow, length, density, roughness, v):
             finished = True
         else:
             guess = guess / 2.0
-    diameter = math.ceil(f[0][0])
+    diameter = f[0][0]
     return diameter
 
 
@@ -344,7 +344,7 @@ def elbow_pressure_drop(dia, flow, density):
 
 print('test points #4')
 print(elbow_pressure_drop(12, 800, .075))
-
+# x = elbow_pressure_drop(input mess here)
 
 def optimize_system(ducts):
     density = ducts['air_density']

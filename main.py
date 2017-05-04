@@ -286,7 +286,7 @@ def interp2D(x, y, xlist, ylist, zmatrix):
     return z
 
 
-def tee_pressure_drop(dia, pressure, flow, outlet_flow, outlet_dia, branch=False):
+def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch=False):
     '''
     
     :param dia: diameter at upstream side
@@ -322,7 +322,9 @@ def tee_pressure_drop(dia, pressure, flow, outlet_flow, outlet_dia, branch=False
                       [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
                       [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
                       [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
-    p_common = pressure
+    area = (np.pi * dia ** 2) / 4
+    velocity = flow / area
+    p_common = density * (velocity / 1097) ** 2
     A_common = (np.pi * dia ** 2) / 4
     A_outlet = (np.pi * outlet_dia ** 2) / 4
     if branch:
@@ -334,12 +336,21 @@ def tee_pressure_drop(dia, pressure, flow, outlet_flow, outlet_dia, branch=False
     return pdrop
 
 
-def elbow_pressure_drop(dia, pressure, flow):
+def elbow_pressure_drop(dia, flow, density):
     D = np.array([4, 6, 8, 10, 12, 14, 16])
     Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
+
     c_o = interp1D(dia, D, Co)
-    pdrop = c_o * pressure
+
+    area = (np.pi * (dia / 12) ** 2) / 4
+    velocity = flow / area
+    p_v = density * (velocity / 1097) ** 2
+    pdrop = c_o * p_v
     return pdrop
+
+
+print('test points #3')
+print(elbow_pressure_drop(12, 800, .075))
 
 
 def optimize_system(ducts):

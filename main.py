@@ -393,6 +393,20 @@ def optimize_system(ducts):
     fan_pressure = ducts['fan_pressure']
     pdrop_old = 1
     pdrop_new = 0
+    farthest_fitting = largest_path(ducts['fittings'])
+    fitting = farthest_fitting['ID']
+    longest_route = []
+    main_pattern = re.compile(r'\d+\b-main\b')
+    branch_pattern = re.compile(r'\d+\b-branch\b')
+
+    # find longest route using farthest diffusers
+    while fitting['type'] != 'air_handling_unit':  # while not at the air handler
+        if main_pattern.match(fitting['IDup']):  # matching main if IDup is tee
+            pass
+        elif branch_pattern.match(fitting['IDup']):  # matching branch if IDup is tee
+            pass
+        else:
+            fitting = find_fitting(fitting['ID'],ducts['fittings'])
     while pdrop_old != pdrop_new:
         pass
 

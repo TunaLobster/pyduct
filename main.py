@@ -233,7 +233,7 @@ def get_duct_size(deltap, flow, length, density, roughness):
     finished = False
     guess = .05
     while not finished:
-        print(guess)
+        # print(guess)
         f = fsolve(func, guess, xtol=.01, full_output=True)
         if int(f[2]) == 1:
             finished = True

@@ -5,49 +5,11 @@
 # Stephen Ziske
 
 import re
-import sys
 import warnings
-
 import numpy as np
-from PyQt5.QtWidgets import QDialog, QApplication
-from PyQt5.QtWidgets import QFileDialog
 from scipy.optimize import fsolve
 
-from pyduct_ui import Ui_Dialog
-
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
-
-
-class main_window(QDialog):
-    def __init__(self):
-        super(main_window, self).__init__()
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
-        self.assign_widgets()
-        self.show()
-
-    # Setup Callbacks for all buttons or other clickable devices
-    def assign_widgets(self):
-        self.ui.pushButton.clicked.connect(self.getFileName)
-        self.ui.buttonBox.clicked.connect(self.ExitApp)
-
-    def getFileName(self):
-        filename = QFileDialog.getOpenFileName()
-        self.ui.lineEdit.setText(str(filename[0]))
-        print(filename[0])
-
-    def ExitApp(self):
-        app.exit()
-
-
-if __name__ == "__main__":
-    app = QApplication.instance()
-    if not app:
-        app = QApplication(sys.argv)
-        app.aboutToQuit.connect(app.deleteLater)
-    main_win = main_window()
-    app.exec_()
-
 
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
@@ -476,8 +438,8 @@ def print_summary(ducts):
         print_fitting(f)
 
 
-def main():
-    file_data = read_input_file('Duct Design Sample Input.txt')
+def calculate(filename):
+    file_data = read_input_file(filename)
     ducts = process_keywords(file_data)
     print('After process_keywords:', end='\n\n')
     print_summary(ducts)
@@ -500,7 +462,3 @@ def main():
     optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
-
-
-if __name__ == '__main__':
-    main()

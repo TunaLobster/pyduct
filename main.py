@@ -171,8 +171,9 @@ def get_little_f(dia, velocity, roughness):
     return f[0][0]
 
 
-# print(get_little_f(24, 2000, .0003))  # should be about 0.02
-# print('test point')
+print('test point')
+print(get_little_f(24, 2000, .0003))  # should be about 0.02
+
 
 def largest_path(fittings):  # Finds the diffuser with the longest path to the fan
     fitting_compare = find_fitting(1, fittings)  # Sets the initial fitting that will be compared
@@ -184,11 +185,15 @@ def largest_path(fittings):  # Finds the diffuser with the longest path to the f
 
 
 def duct_pressure_drop(dia, flow, length, density, roughness):
-    area = (np.pi * dia ** 2) / 4
+    area = (np.pi * (dia / 12) ** 2) / 4
     velocity = flow / area
     f = get_little_f(dia, velocity, roughness)
-    pdrop = ((12 * f * length) / dia) * density * (velocity / 1097)
+    pdrop = ((12 * f * length) / (dia / 12)) * density * (velocity / 1097) ** 2
     return pdrop
+
+
+print('test point #2')
+print(duct_pressure_drop(12, 800, 12, 0.075, .0003))
 
 
 # Nick and Stephen
@@ -281,7 +286,7 @@ def interp2D(x, y, xlist, ylist, zmatrix):
     return z
 
 
-def get_connector_pdrop(dia, pressure, flow, type, outlet_flow=None, outlet_dia=None, branch=False):
+def tee_pressure_drop(dia, pressure, flow, outlet_flow, outlet_dia, branch=False):
     '''
     
     :param dia: diameter at upstream side
@@ -293,48 +298,58 @@ def get_connector_pdrop(dia, pressure, flow, type, outlet_flow=None, outlet_dia=
     :param branch: boolean
     :return: 
     '''
-    if type == 'tee':
-        Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
-        A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common
+    Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
+    A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common
 
-        # Table from 2009 ASHRAE Handbook 21.50 for SD5-10 Tee, Concial Branch Tapered into Body, Diverging
-        # c_branch values
-        sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
-                          [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],
-                          [7.36, 1.56, 0.65, 0.39, 0.29, 0.24, 0.20, 0.17, 0.15],
-                          [13.78, 2.98, 1.20, 0.65, 0.43, 0.33, 0.27, 0.24, 0.21],
-                          [22.24, 4.92, 1.98, 1.04, 0.65, 0.47, 0.36, 0.30, 0.26],
-                          [32.73, 7.36, 2.98, 1.56, 0.96, 0.65, 0.49, 0.39, 0.33],
-                          [45.26, 10.32, 4.21, 2.21, 1.34, 0.90, 0.65, 0.51, 0.42],
-                          [59.82, 13.78, 5.67, 2.98, 1.80, 1.20, 0.86, 0.65, 0.52],
-                          [76.41, 17.75, 7.36, 3.88, 2.35, 1.56, 1.11, 0.83, 0.65]])
-        # c_main values
-        sd5cm = np.array([[0.13, 0.16, 0.57, 0.74, 0.74, 0.70, 0.65, 0.60, 0.56],
-                          [0.20, 0.13, 0.15, 0.16, 0.28, 0.57, 0.69, 0.74, 0.75],
-                          [0.90, 0.13, 0.13, 0.14, 0.15, 0.16, 0.20, 0.42, 0.57],
-                          [2.88, 0.20, 0.14, 0.13, 0.14, 0.15, 0.15, 0.16, 0.34],
-                          [6.25, 0.37, 0.17, 0.14, 0.13, 0.14, 0.14, 0.15, 0.15],
-                          [11.88, 0.90, 0.20, 0.13, 0.14, 0.13, 0.14, 0.14, 0.15],
-                          [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
-                          [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
-                          [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
-        p_common = pressure
-        A_common = (np.pi * dia ** 2) / 4
-        A_outlet = (np.pi * outlet_dia ** 2) / 4
-        if branch:
-            c_branch = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cb)
-            pdrop = c_branch * p_common
-        else:
-            c_main = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cm)
-            pdrop = c_main * p_common
-    elif type == 'elbow':
-        D = np.array([4, 6, 8, 10, 12, 14, 16])
-        Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
-        c_o = interp1D(dia, D, Co)
-        pdrop = c_o * pressure
+    # Table from 2009 ASHRAE Handbook 21.50 for SD5-10 Tee, Concial Branch Tapered into Body, Diverging
+    # c_branch values
+    sd5cb = np.array([[0.65, 0.24, 0.15, 0.11, 0.09, 0.07, 0.06, 0.05, 0.05],
+                      [2.98, 0.65, 0.33, 0.24, 0.18, 0.15, 0.13, 0.11, 0.10],
+                      [7.36, 1.56, 0.65, 0.39, 0.29, 0.24, 0.20, 0.17, 0.15],
+                      [13.78, 2.98, 1.20, 0.65, 0.43, 0.33, 0.27, 0.24, 0.21],
+                      [22.24, 4.92, 1.98, 1.04, 0.65, 0.47, 0.36, 0.30, 0.26],
+                      [32.73, 7.36, 2.98, 1.56, 0.96, 0.65, 0.49, 0.39, 0.33],
+                      [45.26, 10.32, 4.21, 2.21, 1.34, 0.90, 0.65, 0.51, 0.42],
+                      [59.82, 13.78, 5.67, 2.98, 1.80, 1.20, 0.86, 0.65, 0.52],
+                      [76.41, 17.75, 7.36, 3.88, 2.35, 1.56, 1.11, 0.83, 0.65]])
+    # c_main values
+    sd5cm = np.array([[0.13, 0.16, 0.57, 0.74, 0.74, 0.70, 0.65, 0.60, 0.56],
+                      [0.20, 0.13, 0.15, 0.16, 0.28, 0.57, 0.69, 0.74, 0.75],
+                      [0.90, 0.13, 0.13, 0.14, 0.15, 0.16, 0.20, 0.42, 0.57],
+                      [2.88, 0.20, 0.14, 0.13, 0.14, 0.15, 0.15, 0.16, 0.34],
+                      [6.25, 0.37, 0.17, 0.14, 0.13, 0.14, 0.14, 0.15, 0.15],
+                      [11.88, 0.90, 0.20, 0.13, 0.14, 0.13, 0.14, 0.14, 0.15],
+                      [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
+                      [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
+                      [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
+    p_common = pressure
+    A_common = (np.pi * dia ** 2) / 4
+    A_outlet = (np.pi * outlet_dia ** 2) / 4
+    if branch:
+        c_branch = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cb)
+        pdrop = c_branch * p_common
     else:
-        print('Unknown type to find pdrop of')
+        c_main = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cm)
+        pdrop = c_main * p_common
     return pdrop
+
+
+def elbow_pressure_drop(dia, pressure, flow):
+    D = np.array([4, 6, 8, 10, 12, 14, 16])
+    Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
+    c_o = interp1D(dia, D, Co)
+    pdrop = c_o * pressure
+    return pdrop
+
+
+def optimize_system(ducts):
+    density = ducts['density']
+    roughness = ducts['roughness']
+    fan_pressure = ducts['fan_pressure']
+    pdrop_old = 1
+    pdrop_new = 0
+    while pdrop_old != pdrop_new:
+        pass
 
 
 def print_fitting(f):
@@ -390,11 +405,7 @@ def main():
     print('Nick test is done')
 
     # Progress check 2
-    for fitting in fittings:
-        if fitting['type'] == 'duct':
-            # fitting['size'] = get_duct_size(float(ducts['fan_pressure']), fitting['flow'], fitting['length'],
-            # ducts['air_density'], ducts['roughness'], 1800)
-            pass
+    optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
 

@@ -394,21 +394,35 @@ def optimize_system(ducts):
     pdrop_old = 1
     pdrop_new = 0
     farthest_fitting = largest_path(ducts['fittings'])
-    fitting = farthest_fitting['ID']
-    longest_route = []
+    fitting = farthest_fitting
+    longest_route = [int(fitting['ID'])]
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
 
     # find longest route using farthest diffusers
-    while fitting['type'] != 'air_handling_unit':  # while not at the air handler
+    while fitting['ID'] != 1:  # while not at the air handler
         if main_pattern.match(fitting['IDup']):  # matching main if IDup is tee
-            pass
+            index_of_hyphen = fitting['IDup'].find('-')
+            ID = int(fitting['IDup'][:index_of_hyphen])
+            longest_route.append(ID)
+            fitting = find_fitting(ID, ducts['fittings'])
         elif branch_pattern.match(fitting['IDup']):  # matching branch if IDup is tee
-            pass
+            index_of_hyphen = fitting['IDup'].find('-')
+            ID = int(fitting['IDup'][:index_of_hyphen])
+            longest_route.append(ID)
+            fitting = find_fitting(ID, ducts['fittings'])
         else:
-            fitting = find_fitting(fitting['ID'],ducts['fittings'])
-    while pdrop_old != pdrop_new:
-        pass
+            ID = int(fitting['IDup'])
+            longest_route.append(ID)
+            fitting = find_fitting(ID, ducts['fittings'])
+        if fitting is None:
+            print(fitting)
+            print(longest_route)
+            quit(5)
+
+    print(longest_route)
+    # while pdrop_old != pdrop_new:
+    #     pass
 
 
 def print_fitting(f):
@@ -464,7 +478,7 @@ def main():
     print('Nick test is done')
 
     # Progress check 2
-    # optimize_system(ducts)
+    optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
 

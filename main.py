@@ -6,11 +6,10 @@
 
 import math
 import re
+import warnings
 
 import numpy as np
 from scipy.optimize import fsolve
-
-import warnings
 
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
 

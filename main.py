@@ -287,17 +287,6 @@ def interp2D(x, y, xlist, ylist, zmatrix):
 
 
 def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch=False):
-    '''
-    
-    :param dia: diameter at upstream side
-    :param pressure: pressure at upstream side
-    :param flow: flow at upstream side
-    :param type: type of fitting. Tee or elbow
-    :param outlet_flow: used for tees for branch or main
-    :param outlet_dia: used for tees for branch or main
-    :param branch: boolean
-    :return: 
-    '''
     Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
     A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common
 
@@ -322,18 +311,22 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch=False)
                       [18.62, 1.71, 0.33, 0.18, 0.16, 0.14, 0.13, 0.15, 0.14],
                       [26.88, 2.88, 0.50, 0.20, 0.15, 0.14, 0.13, 0.13, 0.14],
                       [36.45, 4.46, 0.90, 0.30, 0.19, 0.16, 0.15, 0.14, 0.13]])
-    area = (np.pi * dia ** 2) / 4
+    area = (np.pi * (dia / 12) ** 2) / 4
     velocity = flow / area
-    p_common = density * (velocity / 1097) ** 2
-    A_common = (np.pi * dia ** 2) / 4
-    A_outlet = (np.pi * outlet_dia ** 2) / 4
+    p_v = density * (velocity / 1097) ** 2
+    A_common = (np.pi * (dia / 12) ** 2) / 4
+    A_outlet = (np.pi * (outlet_dia / 12) ** 2) / 4
     if branch:
-        c_branch = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cb)
-        pdrop = c_branch * p_common
+        c_branch = interp2D((A_outlet / A_common), (outlet_flow / flow), A, Q, sd5cb)
+        pdrop = c_branch * p_v
     else:
-        c_main = interp2D((A_common / A_outlet), (outlet_flow / flow), A, Q, sd5cm)
-        pdrop = c_main * p_common
+        c_main = interp2D((A_outlet / A_common), (outlet_flow / flow), A, Q, sd5cm)
+        pdrop = c_main * p_v
     return pdrop
+
+
+print('test point #3')
+print(tee_pressure_drop(12, .075, 800, 500, 10, False))
 
 
 def elbow_pressure_drop(dia, flow, density):
@@ -349,7 +342,7 @@ def elbow_pressure_drop(dia, flow, density):
     return pdrop
 
 
-print('test points #3')
+print('test points #4')
 print(elbow_pressure_drop(12, 800, .075))
 
 

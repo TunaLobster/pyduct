@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtWidgets import QFileDialog
 import sys
 from pyduct_ui import Ui_Dialog
-from main import calculate
+from pyduct import calculate
 
 class main_window(QDialog):
     def __init__(self):

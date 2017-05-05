@@ -26,6 +26,7 @@ class main_window(QDialog):
         self.ui.lineEdit.setText(str(filename[0]))
 
     def runPyduct(self):
+        print('Running...')
         calculate(str(self.ui.lineEdit.text()))
 
     def ExitApp(self):

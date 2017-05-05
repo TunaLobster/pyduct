@@ -196,10 +196,9 @@ def duct_pressure_drop(dia, flow, length, density, roughness):  # dia [inches], 
 
 
 # Nick and Charlie
-def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RUN
-    farthest_fitting = largest_path(fittings)
-    fitting = farthest_fitting
-    longest_route = [int(fitting['ID'])]
+def pressure_drop_sum(ID, fittings):  # calculates total pressure loss of LONGEST RUN
+    fitting = find_fitting(int(ID), fittings)
+    route = [int(fitting['ID'])]
     main_pattern = re.compile(r'\d+\b-main\b')
     branch_pattern = re.compile(r'\d+\b-branch\b')
 
@@ -208,23 +207,18 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
         if main_pattern.match(fitting['IDup']):  # matching main if IDup is tee
             index_of_hyphen = fitting['IDup'].find('-')
             ID = int(fitting['IDup'][:index_of_hyphen])
-            longest_route.append(ID)
+            route.append(ID)
             fitting = find_fitting(ID, fittings)
         elif branch_pattern.match(fitting['IDup']):  # matching branch if IDup is tee
             index_of_hyphen = fitting['IDup'].find('-')
             ID = int(fitting['IDup'][:index_of_hyphen])
-            longest_route.append(ID)
+            route.append(ID)
             fitting = find_fitting(ID, fittings)
         else:
             ID = int(fitting['IDup'])
-            longest_route.append(ID)
+            route.append(ID)
             fitting = find_fitting(ID, fittings)
-            # print(longest_route)
-            # error handling. should be deleted once confidence is built
-            # if fitting is None:
-            #     print(fitting)
-            #     print(longest_route)
-            #     raise ValueError('Fitting dictionary was empty')
+
     # Nick old code
     # diffuser = largest_path(fittings)
     # delta_psum = 0  # initialize running pressure loss summation
@@ -249,13 +243,13 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
     #     delta_psum += (next_fitting['pdrop'] + next_fitting['pdropBranch'] + next_fitting['pdropMain'])
     #     diffuser = next_fitting
     pdrop_sum = 0
-    for i in range(len(longest_route)):
-        fitting = find_fitting(int(longest_route[i]), fittings)
+    for i in range(len(route)):
+        fitting = find_fitting(int(route[i]), fittings)
         if fitting['type'] == 'duct' or fitting['type'] == 'elbow':
             pdrop_sum += fitting['pdrop']
         elif fitting['type'] == 'tee':
             # next downstream fitting ID
-            next_fitting_ID = longest_route[i - 1]
+            next_fitting_ID = route[i - 1]
             if next_fitting_ID == fitting['IDdownMain']:
                 pdrop_sum += find_fitting(int(next_fitting_ID), fittings)['pdropMain']
             elif next_fitting_ID == fitting['IDdownBranch']:
@@ -286,12 +280,6 @@ def fitting_loss_sum(fittings):  # calculates total pressure loss of LONGEST RUN
             ID = int(fitting['IDup'])
             longest_route.append(ID)
             fitting = find_fitting(ID, fittings)
-            # print(longest_route)
-            # error handling. should be deleted once confidence is built
-            # if fitting is None:
-            #     print(fitting)
-            #     print(longest_route)
-            #     raise ValueError('Fitting dictionary was empty')
 
     pdrop_fitloss_sum = 0
     for i in range(len(longest_route)):
@@ -580,6 +568,9 @@ def sizing_iterate_nick(ducts):
     #   list of each diffuser
     #   run for each diffuser
     #   sum pdrop of everything in the run
+    for fitting in fittings:
+        if fitting['type'] == 'diffuser':
+            pass
 
     return
 
@@ -718,14 +709,13 @@ def calculate(filename):
     print('Progress check 2')
     sizing_iterate_nick(ducts)
     print('check longest run below')
-    print(pressure_drop_sum(fittings))
+    print(pressure_drop_sum(int(largest_path(fittings)['ID']), fittings))
     # print_results(fittings)
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     # print_summary(ducts)
     print_summary(ducts)
 
-
-if __name__ == '__main__':
-    filename = 'Duct Design Sample Input.txt'
+    if __name__ == '__main__':
+        filename = 'Duct Design Sample Input.txt'
     calculate(filename)

@@ -21,7 +21,7 @@ def new_duct_network():
 def new_fitting():
     fitting = dict(ID=None, type=None, IDup=None, BranchUP=None, IDdownMain=None, IDdownBranch=None, flow=None,
                    flowMain=None, flowBranch=None, size=None, sizeMain=None, sizeBranch=None,
-                   pdrop=None, pdropMain=None, pdropBranch=None, length=None, fandist=None)
+                   pdrop=None, pdropMain=None, pdropBranch=None, length=None, fandist=None, diffuser_psum=None)
     return fitting
 
 
@@ -706,6 +706,8 @@ def print_fitting(f):
         print('    pdropMain: ', f['pdropMain'])
     if f['pdropBranch'] is not None:
         print('    pdropBranch: ', f['pdropBranch'])
+    if f['diffuser_psum'] is not None:
+        print('    diffuser_psum: ', f['diffuser_psum'])
 
 
 def print_summary(ducts):

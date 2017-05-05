@@ -487,7 +487,6 @@ def sizing_iterate_nick(ducts):
     # print(dpdl_old)
     count = 0
     # main loop to size ducts first, then elbows, and finally tees
-    # print('foo')
     # 0 = fan_pressure - p_sum_long_run
     for i in range(5):
         # while abs(dpdl - dpdl_old) >= .0001:

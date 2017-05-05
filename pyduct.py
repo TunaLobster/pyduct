@@ -570,7 +570,41 @@ def sizing_iterate_nick(ducts):
     #   sum pdrop of everything in the run
     for fitting in fittings:
         if fitting['type'] == 'diffuser':
-            pass
+            fitting['diffuser_drop_that_Nick_hasn\'t_pushed_yet'] = pressure_drop_sum(int(fitting['ID']), fittings)
+
+    # rounding stuff
+    if ducts['rounding'] is not None:
+        if ducts['rounding'] == 'nearest':
+            for fitting in fittings:
+                fitting['size'] = np.round(fitting['size'])
+                if fitting['type'] == 'tee':
+                    fitting['sizeMain'] = np.round(fitting['sizeMain'])
+                    fittings['sizeBranch'] = np.round(fitting['sizeBranch'])
+        elif ducts['rounding'] == 'up':
+            for fitting in fittings:
+                fitting['size'] = np.ceil(fitting['size'])
+                if fitting['type'] == 'tee':
+                    fitting['sizeMain'] = np.ceil(fitting['sizeMain'])
+                    fittings['sizeBranch'] = np.ceil(fitting['sizeBranch'])
+        elif ducts['rounding'] == 'down':
+            for fittings in fittings:
+                fitting['size'] = np.floor(fittings['size'])
+                if fitting['type'] == 'tee':
+                    fitting['sizeMain'] = np.floor(fitting['sizeMain'])
+                    fittings['sizeBranch'] = np.floor(fitting['sizeBranch'])
+
+        # recalculate pdrop everything after rounding
+        for fitting in fittings:
+            if fitting['type'] == 'duct':
+                fitting['pdrop'] = duct_pressure_drop(fitting['size'], fitting['flow'], fittings['length'], density,
+                                                      roughness)
+            elif fitting['type'] == 'tee':
+                fitting['pdropMain'] = tee_pressure_drop(fitting['size'], density, fitting['flow'], fitting['flowMain'],
+                                                         fitting['sizeMain'], False)
+                fitting['pdropBranch'] = tee_pressure_drop(fitting['size'], density, fitting['flow'],
+                                                           fitting['flowBranch'], fitting['sizeBranch'], True)
+            elif fitting['type'] == 'elbow':
+                fitting['size'] = elbow_pressure_drop(fitting['size'], fitting['flow'], density)
 
     return
 

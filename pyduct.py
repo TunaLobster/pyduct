@@ -569,6 +569,10 @@ def print_fitting(f):
         print('    size: ', f['size'])
     if f['pdrop'] is not None:
         print('    pdrop: ', f['pdrop'])
+    if f['pdropMain'] is not None:
+        print('    pdropMain: ', f['pdropMain'])
+    if f['pdropBranch'] is not None:
+        print('    pdropBranch: ', f['pdropBranch'])
 
 
 def print_summary(ducts):

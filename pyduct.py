@@ -752,7 +752,8 @@ def calculate(filename):
     print('check longest run below')
     print(pressure_drop_sum(int(largest_path(fittings)['ID']), fittings))
     print_results(fittings)
-    optimize_system(ducts)
+    # optimize_system(ducts)  # old. DO NOT USE
+    sizing_iterate_nick(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     # print_summary(ducts)
     print_summary(ducts)

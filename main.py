@@ -1,3 +1,9 @@
+# MAE 3403 PyDuct Design Project
+# 5/5/17
+# Charlie Johnson
+# Nick Nelsen
+# Stephen Ziske
+
 import sys
 
 from PyQt5.QtWidgets import QDialog, QApplication
@@ -21,13 +27,13 @@ class main_window(QDialog):
         self.ui.buttonBox.accepted.connect(self.runPyduct)
         self.ui.buttonBox.rejected.connect(self.ExitApp)
 
-    def getFileName(self):
+    def getFileName(self): #Get file from user
         filename = QFileDialog.getOpenFileName()
         self.ui.lineEdit.setText(str(filename[0]))
 
     def runPyduct(self):
-        print('Running...')
-        calculate(str(self.ui.lineEdit.text()))
+        print('Running...') #Says the program is running
+        calculate(str(self.ui.lineEdit.text())) #Runs pyduct.py and gets all the values, then prints them
 
     def ExitApp(self):
         app.exit()

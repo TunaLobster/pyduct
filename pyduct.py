@@ -1,9 +1,3 @@
-# MAE 3403 PyDuct Design Project
-# 5/5/17
-# Charlie Johnson
-# Nick Nelsen
-# Stephen Ziske
-
 import re
 import sys
 import warnings

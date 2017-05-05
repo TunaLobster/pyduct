@@ -430,9 +430,18 @@ def sizing_iterate_nick(ducts):
 
     psum = pressure_drop_sum(fittings)
     dpdl = (fan_pressure - psum) / maxlength
-    dpdl_old = 1
+    print('\n\n\n\n\n !!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
+    print(dpdl)
+    dpdl_old = -10
+    print(dpdl_old)
+    count = 0
     # main loop to size ducts first, then elbows, and finally tees
-    while abs(dpdl) >= 1e-6:
+    print('foo')
+    while abs(dpdl - dpdl_old) >= .001:
+        count += 1
+        print('count')
+        print('\n\n\n\n\n !!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
+        print(count)
         for fitting in fittings:  # solving ducts
             if fitting['type'] == 'duct':
                 length = fitting['length']
@@ -488,12 +497,14 @@ def sizing_iterate_nick(ducts):
                 fitting['pdropMain'] = p_tee_main
                 fitting['pdropBranch'] = p_tee_branch
 
-        fittings = ducts['fittings']
+        # fittings = ducts['fittings']
         psum = pressure_drop_sum(fittings)
-        dpdl = (fan_pressure - psum) / maxlength
         dpdl_old = dpdl
+        dpdl = (fan_pressure - psum) / maxlength
 
+    print('bottom of loop')
     print(dpdl)
+    print(dpdl_old)
     return
 
 
@@ -608,7 +619,7 @@ def calculate(filename):
     file_data = read_input_file(filename)
     ducts = process_keywords(file_data)
     print('After process_keywords:', end='\n\n')
-    print_summary(ducts)
+    # print_summary(ducts)
     # git this
     # Project Progress check
     fittings = ducts['fittings']

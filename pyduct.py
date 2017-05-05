@@ -11,6 +11,7 @@ from scipy.optimize import fsolve
 
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
 
+
 def new_duct_network():
     ducts = dict(title=None, fan_pressure=None, air_density=None, roughness=None, rounding=None, fittings=[])
     return ducts
@@ -169,7 +170,7 @@ def get_little_f(dia, velocity, roughness):
 
 
 print('test point')
-print(get_little_f(24, 2000, .0003))  # should be about 0.02
+print(get_little_f(24, 2000, .0003))  # should be about 0.023
 
 
 def largest_path(fittings):  # Finds the diffuser with the longest path to the fan
@@ -181,9 +182,9 @@ def largest_path(fittings):  # Finds the diffuser with the longest path to the f
     return fitting_compare
 
 
-def duct_pressure_drop(dia, flow, length, density, roughness):
-    area = (np.pi * (dia / 12) ** 2) / 4
-    velocity = flow / area
+def duct_pressure_drop(dia, flow, length, density, roughness):  # dia [inches], length [ft]
+    area = (np.pi * (dia / 12) ** 2) / 4  # [ft^2]
+    velocity = flow / area  # [ft/min=fpm]
     f = get_little_f(dia, velocity, roughness)
     pdrop = ((12 * f * length) / (dia / 12)) * density * (velocity / 1097) ** 2
     return pdrop
@@ -194,7 +195,7 @@ print(duct_pressure_drop(12, 800, 12, 0.075, .0003))
 
 
 # Nick and Stephen
-def pressure_drop_sum(fittings):
+def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RUN
     diffuser = largest_path(fittings)
     delta_psum = 0  # initialize running pressure loss summation
     while diffuser['type'] != 'air_handling_unit':
@@ -202,10 +203,6 @@ def pressure_drop_sum(fittings):
         if diffuser['IDup'].find('-') != -1:
             index_of_hyphen = diffuser['IDup'].find('-')
             tee_ID = int(diffuser['IDup'][:index_of_hyphen])
-
-        # # if IDup is elbow
-        # elif diffuser(int(fitting['IDup']), fittings)['type'] == 'duct':
-        #     fittingUp = find_fitting(int(fitting['IDup']), fittings)
         else:  # duct or elbow
             tee_ID = int(diffuser['IDup'])
 
@@ -350,6 +347,42 @@ print(elbow_pressure_drop(12, 800, .075))
 
 # x = elbow_pressure_drop(input mess here)
 
+# Nick Nelsen 5/4/17
+def sizing_iterate_nick(ducts):
+    density = ducts['air_density']
+    roughness = ducts['roughness']
+    fan_pressure = ducts['fan_pressure']
+    fittings = ducts['fittings']
+    maxlength = (largest_path(fittings)['fandist'])
+
+    for fitting in fittings:
+        if fitting['pdrop'] is None:
+            fitting['pdrop'] = 0.0
+        if fitting['pdropMain'] is None:
+            fitting['pdropMain'] = 0.0
+        if fitting['pdropBranch'] is None:
+            fitting['pdropBranch'] = 0.0
+
+    psum = pressure_drop_sum(fittings)
+    dpdl = (fan_pressure - psum) / maxlength
+    while abs(dpdl) >= 1e-5:
+        for fitting in fittings:
+            if fitting['type'] == 'duct':
+                length = fitting['length']
+                deltap = dpdl * length
+                flow = fitting['flow']
+                diameter = get_duct_size(deltap, flow, length, density, roughness)
+                fitting['size'] = diameter
+                p_duct = duct_pressure_drop(diameter, flow, length, density, roughness)
+                fitting['pdrop'] = p_duct
+        fittings = ducts['fittings']
+        psum = pressure_drop_sum(fittings)
+        dpdl = (fan_pressure - psum) / maxlength
+
+    print(dpdl)
+    return
+
+
 def optimize_system(ducts):
     density = ducts['air_density']
     roughness = ducts['roughness']
@@ -425,6 +458,10 @@ def print_fitting(f):
         print('    flow: ', f['flow'])
     if f['fandist'] is not None:
         print('    fandist: ', f['fandist'])
+    if f['size'] is not None:
+        print('    size: ', f['size'])
+    if f['pdrop'] is not None:
+        print('    pdrop: ', f['pdrop'])
 
 
 def print_summary(ducts):
@@ -452,17 +489,20 @@ def calculate(filename):
 
     # Nick check p_sum 5/3/17
     print('test running pressure loss sum')
-    # print(largest_path(fittings))
+    # print(largest_path(fittings)['fandist'])
     # print(largest_path(fittings)['IDup'])
     # print(find_fitting(int(largest_path(fittings)['IDup']),fittings))
     print(pressure_drop_sum(fittings))
     print('Nick test is done')
 
     # Progress check 2
-    optimize_system(ducts)
+    print('Progress check 2')
+    sizing_iterate_nick(ducts)
+    # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
 
-if  __name__ == '__main__':
+
+if __name__ == '__main__':
     filename = 'Duct Design Sample Input.txt'
     calculate(filename)

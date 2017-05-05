@@ -326,11 +326,21 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
     p_v = density * (velocity / 1097) ** 2
     A_common = (np.pi * (dia / 12) ** 2) / 4
     A_outlet = (np.pi * (outlet_dia / 12) ** 2) / 4
+    area_ratio = A_outlet/A_common
+    flow_ratio = outlet_flow/flow
+    if area_ratio > .9:
+        area_ratio = .9
+    elif area_ratio < .1:
+        area_ratio = .1
+    if flow_ratio > .9:
+        flow_ratio = .9
+    elif flow_ratio < .1:
+        flow_ratio = .1
     if branch:
-        c_branch = interp2D((A_outlet / A_common), (outlet_flow / flow), A, Q, sd5cb)
+        c_branch = interp2D(area_ratio, flow_ratio, A, Q, sd5cb)
         pdrop = c_branch * p_v
     else:
-        c_main = interp2D((A_outlet / A_common), (outlet_flow / flow), A, Q, sd5cm)
+        c_main = interp2D(area_ratio, flow_ratio, A, Q, sd5cm)
         pdrop = c_main * p_v
     return pdrop
 
@@ -343,7 +353,12 @@ def elbow_pressure_drop(dia, flow, density):
     D = np.array([4, 6, 8, 10, 12, 14, 16])
     Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
 
-    c_o = interp1D(dia, D, Co)
+    if dia >= 16:
+        c_o = 0.25
+    elif dia <= 4:
+        c_o = 0.57
+    else:
+        c_o = interp1D(dia, D, Co)
 
     area = (np.pi * (dia / 12) ** 2) / 4
     velocity = flow / area

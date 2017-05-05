@@ -5,6 +5,7 @@ import warnings
 import numpy as np
 from scipy.optimize import fsolve
 
+# suppress sqrt warning. it's going to happen. Don't really care if it does.
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
 
 

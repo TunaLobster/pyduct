@@ -6,6 +6,7 @@
 
 import re
 import warnings
+
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -218,12 +219,12 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
             ID = int(fitting['IDup'])
             longest_route.append(ID)
             fitting = find_fitting(ID, fittings)
-
+        # print(longest_route)
         # error handling. should be deleted once confidence is built
-        if fitting is None:
-            print(fitting)
-            print(longest_route)
-            raise ValueError('Fitting dictionary was empty')
+        # if fitting is None:
+        #     print(fitting)
+        #     print(longest_route)
+        #     raise ValueError('Fitting dictionary was empty')
 
     # diffuser = largest_path(fittings)
     # delta_psum = 0  # initialize running pressure loss summation
@@ -418,7 +419,7 @@ def sizing_iterate_nick(ducts):
     roughness = ducts['roughness']
     fan_pressure = ducts['fan_pressure']
     fittings = ducts['fittings']
-    maxlength = (largest_path(fittings)['fandist'])
+    maxlength = largest_path(fittings)['fandist']
 
     for fitting in fittings:
         if fitting['pdrop'] is None:
@@ -428,21 +429,30 @@ def sizing_iterate_nick(ducts):
         if fitting['pdropBranch'] is None:
             fitting['pdropBranch'] = 0.0
 
+    # print('charlie test point #1')
+    # print(pressure_drop_sum(fittings))
+
     psum = pressure_drop_sum(fittings)
     dpdl = (fan_pressure - psum) / maxlength
     print('\n\n\n\n\n !!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
     print(dpdl)
-    dpdl_old = -10
+    dpdl_old = 10
     print(dpdl_old)
     count = 0
     # main loop to size ducts first, then elbows, and finally tees
     print('foo')
-    while abs(dpdl - dpdl_old) >= .001:
+    # 0 = fan_pressure - p_sum_long_run
+    for i in range(12):
+    # while abs(dpdl - dpdl_old) >= .001:
         count += 1
         print('count')
-        print('\n\n\n\n\n !!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
+        print('\n\n!!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
+        print('psum')
+        print(pressure_drop_sum(fittings))
         print(count)
+        print(pressure_drop_sum(fittings))
         for fitting in fittings:  # solving ducts
+            # print(fitting['pdrop'])
             if fitting['type'] == 'duct':
                 length = fitting['length']
                 deltap = dpdl * length
@@ -501,8 +511,11 @@ def sizing_iterate_nick(ducts):
         psum = pressure_drop_sum(fittings)
         dpdl_old = dpdl
         dpdl = (fan_pressure - psum) / maxlength
+        print('bottom of loop')
+        print(dpdl, dpdl_old)
+        print('psum')
+        print(pressure_drop_sum(fittings))
 
-    print('bottom of loop')
     print(dpdl)
     print(dpdl_old)
     return
@@ -565,15 +578,18 @@ def sizing_iterate_nick(ducts):
 #                 raise Exception('just panic. it\'s broken')
 
 def print_results(fittings):
-    print('ID'.rjust(4),'Fitting'.rjust(20),'Velocity'.rjust(15),'Q'.rjust(15),'DeltaP'.rjust(15),'Diameter'.rjust(15))
+    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
+          'Diameter'.rjust(15))
     for fitting in fittings:
         if fitting['flow'] is not None and fitting['size'] is not None:
-            velocity = fitting['flow']/(np.pi*(fitting['size'])*(fitting['size']))
+            velocity = fitting['flow'] / (np.pi * (fitting['size']) * (fitting['size']))
         else:
             velocity = 0.0
             fitting['size'] = 0.0
-        print(repr(fitting['ID']).rjust(4),fitting['type'].rjust(20),("%.3f" %velocity).rjust(15),("%.1f" %fitting['flow']).rjust(15),
-              ("%.3f"%fitting['pdrop']).rjust(15),("%.3f"%fitting['size']).rjust(15))
+        print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+              ("%.1f" % fitting['flow']).rjust(15),
+              ("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
+
 
 def print_fitting(f):
     print(' ', int(f['ID']), ' ', end='')
@@ -641,7 +657,7 @@ def calculate(filename):
     print_results(fittings)
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
-    print_summary(ducts)
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

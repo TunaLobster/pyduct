@@ -186,6 +186,7 @@ def duct_pressure_drop(dia, flow, length, density, roughness):  # dia [inches], 
 
 # Nick and Charlie
 def pressure_drop_sum(ID, fittings):  # calculates total pressure loss of ANY RUN
+    # find the fitting dictionary attached to the ID in quesiton
     fitting = find_fitting(int(ID), fittings)
     route = [int(fitting['ID'])]
     main_pattern = re.compile(r'\d+\b-main\b')
@@ -288,9 +289,6 @@ def findBetween(x, xlist):
 
 
 def interp1D(x, xlist, ylist):
-    # insert code here to perform single interpolation
-    #  This function MUST call "findBetween"
-
     # find between value
     position = findBetween(x, xlist)
 
@@ -306,10 +304,6 @@ def interp1D(x, xlist, ylist):
 
 
 def interp2D(x, y, xlist, ylist, zmatrix):
-    # insert code here to perform double interpolation
-    #  This function MUST call "findBetween"
-    #  This function MUST call "interp1D" twice
-
     # find the correct column to use
     yposition = findBetween(y, ylist)
 
@@ -364,6 +358,8 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
     A_outlet = (np.pi * (outlet_dia / 12) ** 2) / 4
     area_ratio = A_outlet / A_common
     flow_ratio = outlet_flow / flow
+
+    # protect from extrapolating on the table
     if area_ratio > .9:
         area_ratio = .9
     elif area_ratio < .1:
@@ -381,9 +377,11 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
     return pdrop
 
 def elbow_pressure_drop(dia, flow, density):
+    # Table from ASHRAE 2009 chapter 21 for pleated 90 degree elbow
     D = np.array([4, 6, 8, 10, 12, 14, 16])
     Co = np.array([0.57, 0.43, 0.34, 0.28, 0.26, 0.25, 0.25])
 
+    # protect from extrapolating on the table
     if dia >= 16:
         c_o = 0.25
     elif dia <= 4:
@@ -399,12 +397,14 @@ def elbow_pressure_drop(dia, flow, density):
 
 # Nick Nelsen 5/4/17
 def sizing_iterate_nick(ducts):
+    # assign for easier use later
     density = ducts['air_density']
     roughness = ducts['roughness']
     fan_pressure = ducts['fan_pressure']
     fittings = ducts['fittings']
     maxlength = largest_path(fittings)['fandist']
 
+    # take care of nonetype errors the cheesy way
     for fitting in fittings:
         if fitting['pdrop'] is None:
             fitting['pdrop'] = 0.0

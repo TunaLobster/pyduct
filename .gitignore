@@ -91,3 +91,6 @@ ENV/
 # pycharm IDE
 .idea/
 .idea/vsc.xml
+
+# output files
+pyductresults.txt

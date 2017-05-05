@@ -476,8 +476,8 @@ def sizing_iterate_nick(ducts):
     count = 0
     # main loop to size ducts first, then elbows, and finally tees
     # 0 = fan_pressure - p_sum_long_run
-    for i in range(5):
-        # while abs(dpdl - dpdl_old) >= .0001:
+    # for i in range(5):
+    while abs(dpdl - dpdl_old) >= 1e-8:
         count += 1
         print(abs(dpdl - dpdl_old))
         print(psum)
@@ -599,8 +599,10 @@ def sizing_iterate_nick(ducts):
                 fitting['pdrop'] = duct_pressure_drop(fitting['size'], fitting['flow'], fitting['length'], density,
                                                       roughness)
             elif fitting['type'] == 'tee':
+                fitting['flowMain'] = find_fitting(int(fitting['IDdownMain']), fittings)['flow']
                 fitting['pdropMain'] = tee_pressure_drop(fitting['size'], density, fitting['flow'], fitting['flowMain'],
                                                          fitting['sizeMain'], False)
+                fitting['flowBranch'] = find_fitting(int(fitting['IDdownBranch']), fittings)['flow']
                 fitting['pdropBranch'] = tee_pressure_drop(fitting['size'], density, fitting['flow'],
                                                            fitting['flowBranch'], fitting['sizeBranch'], True)
             elif fitting['type'] == 'elbow':
@@ -771,6 +773,7 @@ def calculate(filename):
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     # print_summary(ducts)
     print_summary(ducts)
+
 
 if __name__ == '__main__':
     filename = 'Duct Design Sample Input.txt'

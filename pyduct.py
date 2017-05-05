@@ -8,6 +8,7 @@ import re
 import warnings
 import numpy as np
 from scipy.optimize import fsolve
+import pandas as pd
 
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
 
@@ -563,7 +564,9 @@ def calculate(filename):
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
-
+    df = pd.DataFrame(fittings,columns=['ID','type','IDup','BranchUP','IDdownMain','IDdownBranch','flow','flowMain','flowBranch',
+                                'size','sizeMain','sizeBranch','pdrop','pdropMain','pdropBranch','length','fandist'])
+    print(df.to_string(index = False))
 
 if __name__ == '__main__':
     filename = 'Duct Design Sample Input.txt'

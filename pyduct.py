@@ -474,8 +474,8 @@ def sizing_iterate_nick(ducts):
     # print(dpdl_old)
     count = 0
     # main loop to size ducts first, then elbows, and finally tees
-    for i in range(5):
-        # while abs(dpdl - dpdl_old) >= .0001:
+    # for i in range(5):
+    while abs(dpdl - dpdl_old) >= 1e-10:
         count += 1
         print(abs(dpdl - dpdl_old))
         print(psum)
@@ -575,22 +575,25 @@ def sizing_iterate_nick(ducts):
     if ducts['rounding'] is not None:
         if ducts['rounding'] == 'nearest':
             for fitting in fittings:
-                fitting['size'] = np.round(fitting['size'])
-                if fitting['type'] == 'tee':
-                    fitting['sizeMain'] = np.round(fitting['sizeMain'])
-                    fitting['sizeBranch'] = np.round(fitting['sizeBranch'])
+                if fitting['type'] != 'air_handling_unit' and fitting['type'] != 'diffuser':
+                    fitting['size'] = round(fitting['size'])
+                    if fitting['type'] == 'tee':
+                        fitting['sizeMain'] = round(fitting['sizeMain'])
+                        fitting['sizeBranch'] = round(fitting['sizeBranch'])
         elif ducts['rounding'] == 'up':
             for fitting in fittings:
-                fitting['size'] = np.ceil(fitting['size'])
-                if fitting['type'] == 'tee':
-                    fitting['sizeMain'] = np.ceil(fitting['sizeMain'])
-                    fitting['sizeBranch'] = np.ceil(fitting['sizeBranch'])
+                if fitting['type'] != 'air_handling_unit' and fitting['type'] != 'diffuser':
+                    fitting['size'] = np.ceil(fitting['size'])
+                    if fitting['type'] == 'tee':
+                        fitting['sizeMain'] = np.ceil(fitting['sizeMain'])
+                        fitting['sizeBranch'] = np.ceil(fitting['sizeBranch'])
         elif ducts['rounding'] == 'down':
-            for fittings in fittings:
-                fitting['size'] = np.floor(fitting['size'])
-                if fitting['type'] == 'tee':
-                    fitting['sizeMain'] = np.floor(fitting['sizeMain'])
-                    fitting['sizeBranch'] = np.floor(fitting['sizeBranch'])
+            for fitting in fittings:
+                if fitting['type'] != 'air_handling_unit' and fitting['type'] != 'diffuser':
+                    fitting['size'] = np.floor(fitting['size'])
+                    if fitting['type'] == 'tee':
+                        fitting['sizeMain'] = np.floor(fitting['sizeMain'])
+                        fitting['sizeBranch'] = np.floor(fitting['sizeBranch'])
 
         # recalculate pdrop everything after rounding
         for fitting in fittings:
@@ -607,24 +610,29 @@ def sizing_iterate_nick(ducts):
             elif fitting['type'] == 'elbow':
                 fitting['pdrop'] = elbow_pressure_drop(fitting['size'], fitting['flow'], density)
 
+    # finally apply sizes to diffuers
+    for fitting in fittings:
+        if fitting['type'] == 'diffuser':
+            fitting['size'] = find_fitting(int(fitting['IDup']), fittings)['size']
+
     return
 
 
 def print_results(fittings):
     # file=open("pyductresults.txt","w")
-    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
-          'Diameter'.rjust(15))
+    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity (fpm)'.rjust(15), 'Q (cfm)'.rjust(15), 'DeltaP (psi)'.rjust(15),
+          'Diameter (inches)'.rjust(17))
     orig_stdout = sys.stdout
     file = open("pyductresult.txt", "w+")
     sys.stdout = file
-    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
-          'Diameter'.rjust(15))
+    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity (fpm)'.rjust(15), 'Q (cfm)'.rjust(15), 'DeltaP (psi)'.rjust(15),
+          'Diameter (inches)'.rjust(17))
     sys.stdout = orig_stdout
     for fitting in fittings:
-        if fitting['flow'] is not None and fitting['size'] is not None:
+        if fitting['type'] != 'air_handling_unit':
             # TODO: @sziske needs to fix this
-            velocity = 5
-            # velocity = fitting['flow'] / (np.pi * (fitting['size']) * (fitting['size']))
+            # velocity = 5
+            velocity = fitting['flow'] / (np.pi * (fitting['size']/12) * (fitting['size']/12))
         else:
             velocity = 0.0
             fitting['size'] = 0.0
@@ -634,13 +642,13 @@ def print_results(fittings):
             fitting['size'] = 0.0
         print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
               ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(15),
-              ("%.3f" % fitting['size']).rjust(15))
+              ("%.3f" % fitting['size']).rjust(17))
         orig_stdout = sys.stdout
 
         sys.stdout = file
         print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
               ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(15),
-              ("%.3f" % fitting['size']).rjust(15))
+              ("%.3f" % fitting['size']).rjust(17))
         sys.stdout = orig_stdout
     file.close()
 
@@ -698,7 +706,7 @@ def calculate(filename):
     make_connections(fittings)
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
-    print_results(fittings)
+    # print_results(fittings)
 
     # Nick check p_sum 5/3/17
     # print('test running pressure loss sum')
@@ -713,9 +721,9 @@ def calculate(filename):
     sizing_iterate_nick(ducts)
     print('checking longest run below')
     print(pressure_drop_sum(int(largest_path(fittings)['ID']), fittings))
-    # print_results(fittings)
+    print_results(fittings)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
-    print_summary(ducts)
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

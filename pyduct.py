@@ -550,6 +550,10 @@ def sizing_iterate_nick(ducts):
 #             else:
 #                 raise Exception('just panic. it\'s broken')
 
+def print_results(fittings):
+    for fitting in fittings:
+        print(repr(fitting['ID']).rjust(1),repr(fitting['type']).rjust(2),repr(fitting['IDup']).rjust(3),repr(fitting['flow']).rjust(4),
+              repr(fitting['length']).rjust(5),repr(fitting['pdrop']).rjust(6),repr(fitting['size']).rjust(7))
 
 def print_fitting(f):
     print(' ', int(f['ID']), ' ', end='')
@@ -613,16 +617,17 @@ def calculate(filename):
 
     # Progress check 2
     print('Progress check 2')
+    print_results(fittings)
     sizing_iterate_nick(ducts)
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
-    df = pd.DataFrame(fittings,
-                      columns=['ID', 'type', 'IDup', 'BranchUP', 'IDdownMain', 'IDdownBranch', 'flow', 'flowMain',
-                               'flowBranch',
-                               'size', 'sizeMain', 'sizeBranch', 'pdrop', 'pdropMain', 'pdropBranch', 'length',
-                               'fandist'])
-    print(df.to_string(index=False))
+    #df = pd.DataFrame(fittings,
+        #              columns=['ID', 'type', 'IDup', 'BranchUP', 'IDdownMain', 'IDdownBranch', 'flow', 'flowMain',
+       #                        'flowBranch',
+      #                         'size', 'sizeMain', 'sizeBranch', 'pdrop', 'pdropMain', 'pdropBranch', 'length',
+     #                          'fandist'])
+    #print(df.to_string(index=False))
 
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@ class Ui_Dialog(object):
         Dialog.setObjectName("Dialog")
         Dialog.resize(626, 208)
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.lineEdit.setReadOnly(True)
         self.lineEdit.setGeometry(QtCore.QRect(11, 32, 491, 22))
         self.lineEdit.setObjectName("lineEdit")
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)

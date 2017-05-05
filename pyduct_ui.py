@@ -8,7 +8,6 @@
 
 from PyQt5 import QtCore, QtWidgets
 
-
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")

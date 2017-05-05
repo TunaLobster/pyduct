@@ -6,7 +6,7 @@
 
 import re
 import warnings
-
+import sys
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -610,22 +610,35 @@ def sizing_iterate_nick(ducts):
 
 
 def print_results(fittings):
-    file=open("pyductresults.txt","w")
+    #file=open("pyductresults.txt","w")
     print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
           'Diameter'.rjust(15))
-    file.write('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
+    orig_stdout=sys.stdout
+    file = open("pyductresult.txt","w+")
+    sys.stdout = file
+    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
           'Diameter'.rjust(15))
+    sys.stdout= orig_stdout
     for fitting in fittings:
         if fitting['flow'] is not None and fitting['size'] is not None:
             velocity = fitting['flow'] / (np.pi * (fitting['size']) * (fitting['size']))
         else:
             velocity = 0.0
             fitting['size'] = 0.0
+        if fitting['pdrop'] is None:
+            fitting['pdrop'] = 0.0
+        if fitting['size'] is None:
+            fitting['size'] = 0.0
         print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
               ("%.1f" % fitting['flow']).rjust(15),("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
-        file.write(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
-                   ("%.1f" % fitting['flow']).rjust(15),("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
+        orig_stdout = sys.stdout
 
+        sys.stdout = file
+        print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+              ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(15),
+              ("%.3f" % fitting['size']).rjust(15))
+        sys.stdout = orig_stdout
+    file.close()
 
 
 def print_fitting(f):
@@ -681,6 +694,7 @@ def calculate(filename):
     make_connections(fittings)
     setup_flowrates(fittings)
     setup_fan_distances(fittings)
+    print_results(fittings)
 
     # Nick check p_sum 5/3/17
     # print('test running pressure loss sum')

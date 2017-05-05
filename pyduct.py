@@ -530,13 +530,15 @@ def sizing_iterate_nick(ducts):
 
 def print_results(fittings):
     # file=open("pyductresults.txt","w")
-    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity (fpm)'.rjust(15), 'Q (cfm)'.rjust(15), 'DeltaP (psi)'.rjust(15),
-          'Diameter (inches)'.rjust(17))
+    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity (fpm)'.rjust(15), 'Q (cfm)'.rjust(15), 'DeltaP (in. wg)'.rjust(16),
+          'Diameter (in)'.rjust(17), 'Diffuser pressure (in. wg)'.rjust(25))
+    print('-'*120)
     orig_stdout = sys.stdout
     file = open("pyductresult.txt", "w+")
     sys.stdout = file
-    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity (fpm)'.rjust(15), 'Q (cfm)'.rjust(15), 'DeltaP (psi)'.rjust(15),
-          'Diameter (inches)'.rjust(17))
+    print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity (fpm)'.rjust(15), 'Q (cfm)'.rjust(15), 'DeltaP (in. wg)'.rjust(16),
+          'Diameter (in)'.rjust(17), 'Diffuser pressure (in. wg)'.rjust(25))
+    print('-'*120)
     sys.stdout = orig_stdout
     for fitting in fittings:
         if fitting['type'] != 'air_handling_unit':
@@ -550,16 +552,27 @@ def print_results(fittings):
             fitting['pdrop'] = 0.0
         if fitting['size'] is None:
             fitting['size'] = 0.0
-        print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
-              ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(15),
-              ("%.3f" % fitting['size']).rjust(17))
-        orig_stdout = sys.stdout
+        if fitting['diffuser_psum'] is None:
+            print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+                  ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(16),
+                  ("%.3f" % fitting['size']).rjust(17))
+            orig_stdout = sys.stdout
+            sys.stdout = file
+            print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+                  ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(16),
+                  ("%.3f" % fitting['size']).rjust(17))
+            sys.stdout = orig_stdout
+        else:
+            print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+                  ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(16),
+                  ("%.3f" % fitting['size']).rjust(17), ("%.3f" % fitting['diffuser_psum']).rjust(25))
+            orig_stdout = sys.stdout
+            sys.stdout = file
+            print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+                  ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(16),
+                ("%.3f" % fitting['size']).rjust(17), ("%.3f" % fitting['diffuser_psum']).rjust(25))
+            sys.stdout = orig_stdout
 
-        sys.stdout = file
-        print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
-              ("%.1f" % fitting['flow']).rjust(15), ("%.3f" % fitting['pdrop']).rjust(15),
-              ("%.3f" % fitting['size']).rjust(17))
-        sys.stdout = orig_stdout
     file.close()
 
 

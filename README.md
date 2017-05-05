@@ -3,7 +3,7 @@ HVAC duct pressure drop, flowrate calculations, and sizing. Uses equal friction 
 
 Created for college computer methods course using Python 3.5.2. YMMV.
 
-![version](https://img.shields.io/badge/version-0.1-brightgreen.svg)
+![version](https://img.shields.io/badge/version-1.0-brightgreen.svg)
 ![Python 3.4+](https://img.shields.io/badge/Python-3.4%2B-blue.svg)
 
 ### Example Input file

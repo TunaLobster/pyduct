@@ -6,9 +6,10 @@
 
 import re
 import warnings
+
 import numpy as np
-from scipy.optimize import fsolve
 import pandas as pd
+from scipy.optimize import fsolve
 
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
 
@@ -197,6 +198,35 @@ print(duct_pressure_drop(12, 800, 12, 0.075, .0003))
 
 # Nick and Stephen
 def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RUN
+    farthest_fitting = largest_path(fittings)
+    fitting = farthest_fitting
+    longest_route = [int(fitting['ID'])]
+    main_pattern = re.compile(r'\d+\b-main\b')
+    branch_pattern = re.compile(r'\d+\b-branch\b')
+
+    # find longest route using farthest diffusers
+    while fitting['ID'] != 1:  # while not at the air handler
+        if main_pattern.match(fitting['IDup']):  # matching main if IDup is tee
+            index_of_hyphen = fitting['IDup'].find('-')
+            ID = int(fitting['IDup'][:index_of_hyphen])
+            longest_route.append(ID)
+            fitting = find_fitting(ID, fittings)
+        elif branch_pattern.match(fitting['IDup']):  # matching branch if IDup is tee
+            index_of_hyphen = fitting['IDup'].find('-')
+            ID = int(fitting['IDup'][:index_of_hyphen])
+            longest_route.append(ID)
+            fitting = find_fitting(ID, fittings)
+        else:
+            ID = int(fitting['IDup'])
+            longest_route.append(ID)
+            fitting = find_fitting(ID, fittings)
+
+        # error handling. should be deleted once confidence is built
+        if fitting is None:
+            print(fitting)
+            print(longest_route)
+            raise ValueError('Fitting dictionary was empty')
+
     diffuser = largest_path(fittings)
     delta_psum = 0  # initialize running pressure loss summation
     while diffuser['type'] != 'air_handling_unit':
@@ -326,8 +356,8 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
     p_v = density * (velocity / 1097) ** 2
     A_common = (np.pi * (dia / 12) ** 2) / 4
     A_outlet = (np.pi * (outlet_dia / 12) ** 2) / 4
-    area_ratio = A_outlet/A_common
-    flow_ratio = outlet_flow/flow
+    area_ratio = A_outlet / A_common
+    flow_ratio = outlet_flow / flow
     if area_ratio > .9:
         area_ratio = .9
     elif area_ratio < .1:
@@ -442,16 +472,15 @@ def sizing_iterate_nick(ducts):
                                                find_fitting(fitting['IDdownMain'], fittings)['flow'],
                                                find_fitting(fitting['IDdownMain'], fittings)['size'], False)
                 p_tee_branch = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
-                                               find_fitting(fitting['IDdownBranch'], fittings)['flow'],
-                                               find_fitting(fitting['IDdownBranch'], fittings)['size'], True)
+                                                 find_fitting(fitting['IDdownBranch'], fittings)['flow'],
+                                                 find_fitting(fitting['IDdownBranch'], fittings)['size'], True)
                 # if tee_inlet_diameter / fitting['sizeMain'] > .9:
                 #     pass
                 fitting['size'] = tee_inlet_diameter
-                fitting['sizeMain']=find_fitting(fitting['IDdownMain'], fittings)['size']
+                fitting['sizeMain'] = find_fitting(fitting['IDdownMain'], fittings)['size']
                 fitting['sizeBranch'] = find_fitting(fitting['IDdownBranch'], fittings)['size']
                 fitting['pdropMain'] = p_tee_main
                 fitting['pdropBranch'] = p_tee_branch
-
 
         fittings = ducts['fittings']
         psum = pressure_drop_sum(fittings)
@@ -579,9 +608,13 @@ def calculate(filename):
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
-    df = pd.DataFrame(fittings,columns=['ID','type','IDup','BranchUP','IDdownMain','IDdownBranch','flow','flowMain','flowBranch',
-                                'size','sizeMain','sizeBranch','pdrop','pdropMain','pdropBranch','length','fandist'])
-    print(df.to_string(index = False))
+    df = pd.DataFrame(fittings,
+                      columns=['ID', 'type', 'IDup', 'BranchUP', 'IDdownMain', 'IDdownBranch', 'flow', 'flowMain',
+                               'flowBranch',
+                               'size', 'sizeMain', 'sizeBranch', 'pdrop', 'pdropMain', 'pdropBranch', 'length',
+                               'fandist'])
+    print(df.to_string(index=False))
+
 
 if __name__ == '__main__':
     filename = 'Duct Design Sample Input.txt'

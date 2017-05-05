@@ -27,13 +27,13 @@ class main_window(QDialog):
         self.ui.buttonBox.accepted.connect(self.runPyduct)
         self.ui.buttonBox.rejected.connect(self.ExitApp)
 
-    def getFileName(self): #Get file from user
+    def getFileName(self):  # Get file from user
         filename = QFileDialog.getOpenFileName()
         self.ui.lineEdit.setText(str(filename[0]))
 
     def runPyduct(self):
-        print('Running...') #Says the program is running
-        calculate(str(self.ui.lineEdit.text())) #Runs pyduct.py and gets all the values, then prints them
+        print('Running...')  # Says the program is running
+        calculate(str(self.ui.lineEdit.text()))  # Runs pyduct.py and gets all the values, then prints them
 
     def ExitApp(self):
         app.exit()

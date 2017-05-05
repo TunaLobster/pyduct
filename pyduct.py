@@ -378,6 +378,7 @@ def sizing_iterate_nick(ducts):
 
         # fittings = ducts['fittings']
         # psum = pressure_drop_sum(fittings)
+        #commment
         # dpdl = (fan_pressure - psum) / maxlength
 
         for fitting in fittings:  # solving elbows

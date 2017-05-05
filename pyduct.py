@@ -262,6 +262,7 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
                 pdrop_sum += find_fitting(int(next_fitting_ID), fittings)['pdropBranch']
     return pdrop_sum
 
+
 def fitting_loss_sum(fittings):  # calculates total pressure loss of LONGEST RUN
     farthest_fitting = largest_path(fittings)
     fitting = farthest_fitting
@@ -478,8 +479,8 @@ def sizing_iterate_nick(ducts):
 
     psum = fitting_loss_sum(fittings)
     dpdl = (fan_pressure - psum) / maxlength
-    print(fan_pressure, psum, maxlength)
-    print('psum is second')
+    # print(fan_pressure, psum, maxlength)
+    # print('psum is second')
     # print('\n\n!!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
     # print(dpdl)
     dpdl_old = 0
@@ -489,9 +490,10 @@ def sizing_iterate_nick(ducts):
     # print('foo')
     # 0 = fan_pressure - p_sum_long_run
     for i in range(5):
-    #while abs(dpdl - dpdl_old) >= .0001:
+        # while abs(dpdl - dpdl_old) >= .0001:
         count += 1
         print(abs(dpdl - dpdl_old))
+        print('diff above, fit_loss below')
         print(psum)
         print(count, '!!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
         for fitting in fittings:  # solving ducts
@@ -693,10 +695,12 @@ def calculate(filename):
     # Progress check 2
     print('Progress check 2')
     sizing_iterate_nick(ducts)
-    print_results(fittings)
+    print('check longest run below')
+    print(pressure_drop_sum(fittings))
+    # print_results(fittings)
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
-    #print_summary(ducts)
+    print_summary(ducts)
 
 
 if __name__ == '__main__':

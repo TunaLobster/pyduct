@@ -630,5 +630,6 @@ def calculate(filename):
 
 
 if __name__ == '__main__':
-    filename = 'Duct Design Sample Input.txt'
-    calculate(filename)
+    # filename = 'Duct Design Sample Input.txt'
+    # calculate(filename)
+    print('Please run from main.py')

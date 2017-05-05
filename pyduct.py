@@ -7,6 +7,7 @@
 import re
 import sys
 import warnings
+
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -183,6 +184,7 @@ def duct_pressure_drop(dia, flow, length, density, roughness):  # dia [inches], 
     pdrop = ((12 * f * length) / (dia / 12)) * density * (velocity / 1097) ** 2
     return pdrop
 
+
 # Nick and Charlie
 def pressure_drop_sum(ID, fittings):  # calculates total pressure loss of ANY RUN
     # find the fitting dictionary attached to the ID in quesiton
@@ -278,6 +280,7 @@ def get_duct_size(deltap, flow, length, density, roughness):
             guess = guess * 2.0
     diameter = f[0][0]
     return diameter
+
 
 def findBetween(x, xlist):
     # iterate over xlist to find where x fits in
@@ -375,6 +378,7 @@ def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
         pdrop = c_main * p_v
     return pdrop
 
+
 def elbow_pressure_drop(dia, flow, density):
     # Table from ASHRAE 2009 chapter 21 for pleated 90 degree elbow
     D = np.array([4, 6, 8, 10, 12, 14, 16])
@@ -393,6 +397,7 @@ def elbow_pressure_drop(dia, flow, density):
     p_v = density * (velocity / 1097) ** 2
     pdrop = c_o * p_v
     return pdrop
+
 
 # Nick Nelsen 5/4/17
 def sizing_iterate_nick(ducts):
@@ -542,7 +547,7 @@ def print_results(fittings):
         if fitting['type'] != 'air_handling_unit':
             # TODO: @sziske needs to fix this
             # velocity = 5
-            velocity = fitting['flow'] / (np.pi * (fitting['size']/12) * (fitting['size']/12))
+            velocity = fitting['flow'] / (np.pi * (fitting['size'] / 12) * (fitting['size'] / 12))
         else:
             velocity = 0.0
             fitting['size'] = 0.0

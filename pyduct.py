@@ -365,7 +365,7 @@ def sizing_iterate_nick(ducts):
 
     psum = pressure_drop_sum(fittings)
     dpdl = (fan_pressure - psum) / maxlength
-    while abs(dpdl) >= 1e-5:
+    while abs(dpdl) >= 1e-4:
         for fitting in fittings:
             if fitting['type'] == 'duct':
                 length = fitting['length']
@@ -375,6 +375,28 @@ def sizing_iterate_nick(ducts):
                 fitting['size'] = diameter
                 p_duct = duct_pressure_drop(diameter, flow, length, density, roughness)
                 fitting['pdrop'] = p_duct
+
+            if fitting['type']=='elbow':
+                # if up_fitting is a tee
+                if fitting['IDup'].find('-') != -1:
+                    index_of_hyphen = fitting['IDup'].find('-')
+                    tee_ID = int(fitting['IDup'][:index_of_hyphen])
+                    up_fitting = find_fitting(tee_ID, fittings)
+                else:
+                    up_fitting=find_fitting(int(fitting['IDup']),fittings)
+                    if up_fitting['size'] is not None:
+                        e_diameter = up_fitting['size']
+                        p_elbow = elbow_pressure_drop(e_diameter,fitting['flow'],density)
+                        fitting['size']=e_diameter
+                        fitting['pdrop']=p_elbow
+                    else: #what happens if up_fitting has no diameter?
+                        down_fitting = find_fitting(int(fitting['IDdown']), fittings)
+                        e_diameter = down_fitting['size']
+                        p_elbow = elbow_pressure_drop(e_diameter, fitting['flow'], density)
+                        fitting['size'] = e_diameter
+                        fitting['pdrop'] = p_elbow
+
+
         fittings = ducts['fittings']
         psum = pressure_drop_sum(fittings)
         dpdl = (fan_pressure - psum) / maxlength

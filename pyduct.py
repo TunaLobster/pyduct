@@ -604,7 +604,7 @@ def sizing_iterate_nick(ducts):
                 fitting['pdropBranch'] = tee_pressure_drop(fitting['size'], density, fitting['flow'],
                                                            fitting['flowBranch'], fitting['sizeBranch'], True)
             elif fitting['type'] == 'elbow':
-                fitting['size'] = elbow_pressure_drop(fitting['size'], fitting['flow'], density)
+                fitting['pdrop'] = elbow_pressure_drop(fitting['size'], fitting['flow'], density)
 
     return
 

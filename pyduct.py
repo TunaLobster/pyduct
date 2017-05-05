@@ -205,7 +205,7 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
     branch_pattern = re.compile(r'\d+\b-branch\b')
 
     # find longest route using farthest diffusers
-    while fitting['ID'] != 1:  # while not at the air handler
+    while fitting['type'] != 'air_handling_unit':  # while not at the air handler
         if main_pattern.match(fitting['IDup']):  # matching main if IDup is tee
             index_of_hyphen = fitting['IDup'].find('-')
             ID = int(fitting['IDup'][:index_of_hyphen])
@@ -227,28 +227,41 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
             print(longest_route)
             raise ValueError('Fitting dictionary was empty')
 
-    diffuser = largest_path(fittings)
-    delta_psum = 0  # initialize running pressure loss summation
-    while diffuser['type'] != 'air_handling_unit':
-        # if IDup is a tee
-        if diffuser['IDup'].find('-') != -1:
-            index_of_hyphen = diffuser['IDup'].find('-')
-            tee_ID = int(diffuser['IDup'][:index_of_hyphen])
-        else:  # duct or elbow
-            tee_ID = int(diffuser['IDup'])
-
-        next_fitting = find_fitting(tee_ID, fittings)  # input correct tee_ID= IDup for fitting type
-
-        if next_fitting['pdrop'] is None:
-            next_fitting['pdrop'] = 0.0
-        if next_fitting['pdropMain'] is None:
-            next_fitting['pdropMain'] = 0.0
-        if next_fitting['pdropBranch'] is None:
-            next_fitting['pdropBranch'] = 0.0
-
-        delta_psum += (next_fitting['pdrop'] + next_fitting['pdropBranch'] + next_fitting['pdropMain'])
-        diffuser = next_fitting
-    return delta_psum
+    # diffuser = largest_path(fittings)
+    # delta_psum = 0  # initialize running pressure loss summation
+    # while diffuser['type'] != 'air_handling_unit':
+    #     # if IDup is a tee
+    #     if diffuser['IDup'].find('-') != -1:
+    #         index_of_hyphen = diffuser['IDup'].find('-')
+    #         tee_ID = int(diffuser['IDup'][:index_of_hyphen])
+    #     else:  # duct or elbow
+    #         tee_ID = int(diffuser['IDup'])
+    #
+    #     next_fitting = find_fitting(tee_ID, fittings)  # input correct tee_ID= IDup for fitting type
+    #
+    #     if next_fitting['pdrop'] is None:
+    #         next_fitting['pdrop'] = 0.0
+    #     if next_fitting['pdropMain'] is None:
+    #         next_fitting['pdropMain'] = 0.0
+    #     if next_fitting['pdropBranch'] is None:
+    #         next_fitting['pdropBranch'] = 0.0
+    #
+    #
+    #     delta_psum += (next_fitting['pdrop'] + next_fitting['pdropBranch'] + next_fitting['pdropMain'])
+    #     diffuser = next_fitting
+    pdrop_sum = 0
+    for i in range(len(longest_route)):
+        fitting = find_fitting(int(longest_route[i]), fittings)
+        if fitting['type'] == 'duct' or fitting['type'] == 'elbow':
+            pdrop_sum += fitting['pdrop']
+        elif fitting['type'] == 'tee':
+            # next downstream fitting ID
+            next_fitting_ID = longest_route[i - 1]
+            if next_fitting_ID == fitting['IDdownMain']:
+                pdrop_sum += find_fitting(int(next_fitting_ID), fittings)['pdropMain']
+            elif next_fitting_ID == fitting['IDdownBranch']:
+                pdrop_sum += find_fitting(int(next_fitting_ID), fittings)['pdropBranch']
+    return pdrop_sum
 
 
 def get_duct_size(deltap, flow, length, density, roughness):
@@ -464,23 +477,23 @@ def sizing_iterate_nick(ducts):
                     #      IDdownMain=int(fitting['IDdownMain'])
                     #      IDdownBranch = int(fitting['IDdownBranch'])
 
-        for fitting in fittings:  # solving tees
-            if fitting['type'] == 'tee':
-                up_fitting = find_fitting(int(fitting['IDup']), fittings)
-                tee_inlet_diameter = up_fitting['size']
-                p_tee_main = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
-                                               find_fitting(fitting['IDdownMain'], fittings)['flow'],
-                                               find_fitting(fitting['IDdownMain'], fittings)['size'], False)
-                p_tee_branch = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
-                                                 find_fitting(fitting['IDdownBranch'], fittings)['flow'],
-                                                 find_fitting(fitting['IDdownBranch'], fittings)['size'], True)
-                # if tee_inlet_diameter / fitting['sizeMain'] > .9:
-                #     pass
-                fitting['size'] = tee_inlet_diameter
-                fitting['sizeMain'] = find_fitting(fitting['IDdownMain'], fittings)['size']
-                fitting['sizeBranch'] = find_fitting(fitting['IDdownBranch'], fittings)['size']
-                fitting['pdropMain'] = p_tee_main
-                fitting['pdropBranch'] = p_tee_branch
+        # for fitting in fittings:  # solving tees
+        #     if fitting['type'] == 'tee':
+        #         up_fitting = find_fitting(int(fitting['IDup']), fittings)
+        #         tee_inlet_diameter = up_fitting['size']
+        #         p_tee_main = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
+        #                                        find_fitting(fitting['IDdownMain'], fittings)['flow'],
+        #                                        find_fitting(fitting['IDdownMain'], fittings)['size'], False)
+        #         p_tee_branch = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
+        #                                          find_fitting(fitting['IDdownBranch'], fittings)['flow'],
+        #                                          find_fitting(fitting['IDdownBranch'], fittings)['size'], True)
+        #         # if tee_inlet_diameter / fitting['sizeMain'] > .9:
+        #         #     pass
+        #         fitting['size'] = tee_inlet_diameter
+        #         fitting['sizeMain'] = find_fitting(fitting['IDdownMain'], fittings)['size']
+        #         fitting['sizeBranch'] = find_fitting(fitting['IDdownBranch'], fittings)['size']
+        #         fitting['pdropMain'] = p_tee_main
+        #         fitting['pdropBranch'] = p_tee_branch
 
         fittings = ducts['fittings']
         psum = pressure_drop_sum(fittings)

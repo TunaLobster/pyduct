@@ -710,7 +710,6 @@ def calculate(filename):
     print('checking longest run below')
     print(pressure_drop_sum(int(largest_path(fittings)['ID']), fittings))
     #print_results(fittings)
-    sizing_iterate_nick(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
 

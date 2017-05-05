@@ -666,7 +666,10 @@ def sizing_iterate_nick(ducts):
 #                 raise Exception('just panic. it\'s broken')
 
 def print_results(fittings):
+    file=open("pyductresults.txt","w")
     print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
+          'Diameter'.rjust(15))
+    file.write('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
           'Diameter'.rjust(15))
     for fitting in fittings:
         if fitting['flow'] is not None and fitting['size'] is not None:
@@ -675,8 +678,10 @@ def print_results(fittings):
             velocity = 0.0
             fitting['size'] = 0.0
         print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
-              ("%.1f" % fitting['flow']).rjust(15),
-              ("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
+              ("%.1f" % fitting['flow']).rjust(15),("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
+        file.write(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
+                   ("%.1f" % fitting['flow']).rjust(15),("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
+
 
 
 def print_fitting(f):
@@ -746,12 +751,12 @@ def calculate(filename):
     sizing_iterate_nick(ducts)
     print('check longest run below')
     print(pressure_drop_sum(int(largest_path(fittings)['ID']), fittings))
-    # print_results(fittings)
-    # optimize_system(ducts)
+    print_results(fittings)
+    optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     # print_summary(ducts)
     print_summary(ducts)
 
-    if __name__ == '__main__':
-        filename = 'Duct Design Sample Input.txt'
-    calculate(filename)
+if __name__ == '__main__':
+    filename = 'Duct Design Sample Input.txt'
+calculate(filename)

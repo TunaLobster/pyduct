@@ -8,7 +8,6 @@ import re
 import warnings
 
 import numpy as np
-import pandas as pd
 from scipy.optimize import fsolve
 
 warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
@@ -409,8 +408,10 @@ def elbow_pressure_drop(dia, flow, density):
     pdrop = c_o * p_v
     return pdrop
 
+
 print('test points #4')
 print(elbow_pressure_drop(12, 800, .075))
+
 
 # Nick Nelsen 5/4/17
 def sizing_iterate_nick(ducts):
@@ -430,8 +431,9 @@ def sizing_iterate_nick(ducts):
 
     psum = pressure_drop_sum(fittings)
     dpdl = (fan_pressure - psum) / maxlength
+    dpdl_old = 1
     # main loop to size ducts first, then elbows, and finally tees
-    while abs(dpdl) >= 1e-4:
+    while abs(dpdl) >= 1e-6:
         for fitting in fittings:  # solving ducts
             if fitting['type'] == 'duct':
                 length = fitting['length']
@@ -490,9 +492,11 @@ def sizing_iterate_nick(ducts):
         fittings = ducts['fittings']
         psum = pressure_drop_sum(fittings)
         dpdl = (fan_pressure - psum) / maxlength
+        dpdl_old = dpdl
 
     print(dpdl)
     return
+
 
 # Charlie old code
 # def optimize_system(ducts):
@@ -552,8 +556,10 @@ def sizing_iterate_nick(ducts):
 
 def print_results(fittings):
     for fitting in fittings:
-        print(repr(fitting['ID']).rjust(1),repr(fitting['type']).rjust(2),repr(fitting['IDup']).rjust(3),repr(fitting['flow']).rjust(4),
-              repr(fitting['length']).rjust(5),repr(fitting['pdrop']).rjust(6),repr(fitting['size']).rjust(7))
+        print(repr(fitting['ID']).rjust(1), repr(fitting['type']).rjust(2), repr(fitting['IDup']).rjust(3),
+              repr(fitting['flow']).rjust(4),
+              repr(fitting['length']).rjust(5), repr(fitting['pdrop']).rjust(6), repr(fitting['size']).rjust(7))
+
 
 def print_fitting(f):
     print(' ', int(f['ID']), ' ', end='')
@@ -622,12 +628,12 @@ def calculate(filename):
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
-    #df = pd.DataFrame(fittings,
-        #              columns=['ID', 'type', 'IDup', 'BranchUP', 'IDdownMain', 'IDdownBranch', 'flow', 'flowMain',
-       #                        'flowBranch',
-      #                         'size', 'sizeMain', 'sizeBranch', 'pdrop', 'pdropMain', 'pdropBranch', 'length',
-     #                          'fandist'])
-    #print(df.to_string(index=False))
+    # df = pd.DataFrame(fittings,
+    #              columns=['ID', 'type', 'IDup', 'BranchUP', 'IDdownMain', 'IDdownBranch', 'flow', 'flowMain',
+    #                        'flowBranch',
+    #                         'size', 'sizeMain', 'sizeBranch', 'pdrop', 'pdropMain', 'pdropBranch', 'length',
+    #                          'fandist'])
+    # print(df.to_string(index=False))
 
 
 if __name__ == '__main__':

@@ -579,24 +579,24 @@ def sizing_iterate_nick(ducts):
                 fitting['size'] = np.round(fitting['size'])
                 if fitting['type'] == 'tee':
                     fitting['sizeMain'] = np.round(fitting['sizeMain'])
-                    fittings['sizeBranch'] = np.round(fitting['sizeBranch'])
+                    fitting['sizeBranch'] = np.round(fitting['sizeBranch'])
         elif ducts['rounding'] == 'up':
             for fitting in fittings:
                 fitting['size'] = np.ceil(fitting['size'])
                 if fitting['type'] == 'tee':
                     fitting['sizeMain'] = np.ceil(fitting['sizeMain'])
-                    fittings['sizeBranch'] = np.ceil(fitting['sizeBranch'])
+                    fitting['sizeBranch'] = np.ceil(fitting['sizeBranch'])
         elif ducts['rounding'] == 'down':
             for fittings in fittings:
-                fitting['size'] = np.floor(fittings['size'])
+                fitting['size'] = np.floor(fitting['size'])
                 if fitting['type'] == 'tee':
                     fitting['sizeMain'] = np.floor(fitting['sizeMain'])
-                    fittings['sizeBranch'] = np.floor(fitting['sizeBranch'])
+                    fitting['sizeBranch'] = np.floor(fitting['sizeBranch'])
 
         # recalculate pdrop everything after rounding
         for fitting in fittings:
             if fitting['type'] == 'duct':
-                fitting['pdrop'] = duct_pressure_drop(fitting['size'], fitting['flow'], fittings['length'], density,
+                fitting['pdrop'] = duct_pressure_drop(fitting['size'], fitting['flow'], fitting['length'], density,
                                                       roughness)
             elif fitting['type'] == 'tee':
                 fitting['pdropMain'] = tee_pressure_drop(fitting['size'], density, fitting['flow'], fitting['flowMain'],

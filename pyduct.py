@@ -6,7 +6,6 @@
 
 import re
 import warnings
-
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -555,11 +554,15 @@ def sizing_iterate_nick(ducts):
 #                 raise Exception('just panic. it\'s broken')
 
 def print_results(fittings):
+    print('ID'.rjust(4),'Fitting'.rjust(20),'Velocity'.rjust(15),'Q'.rjust(15),'DeltaP'.rjust(15),'Diameter'.rjust(15))
     for fitting in fittings:
-        print(repr(fitting['ID']).rjust(1), repr(fitting['type']).rjust(2), repr(fitting['IDup']).rjust(3),
-              repr(fitting['flow']).rjust(4),
-              repr(fitting['length']).rjust(5), repr(fitting['pdrop']).rjust(6), repr(fitting['size']).rjust(7))
-
+        if fitting['flow'] is not None and fitting['size'] is not None:
+            velocity = fitting['flow']/(np.pi*(fitting['size'])*(fitting['size']))
+        else:
+            velocity = 0.0
+            fitting['size'] = 0.0
+        print(repr(fitting['ID']).rjust(4),fitting['type'].rjust(20),("%.3f" %velocity).rjust(15),("%.1f" %fitting['flow']).rjust(15),
+              ("%.3f"%fitting['pdrop']).rjust(15),("%.3f"%fitting['size']).rjust(15))
 
 def print_fitting(f):
     print(' ', int(f['ID']), ' ', end='')
@@ -623,17 +626,11 @@ def calculate(filename):
 
     # Progress check 2
     print('Progress check 2')
-    print_results(fittings)
     sizing_iterate_nick(ducts)
+    print_results(fittings)
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
     print_summary(ducts)
-    # df = pd.DataFrame(fittings,
-    #              columns=['ID', 'type', 'IDup', 'BranchUP', 'IDdownMain', 'IDdownBranch', 'flow', 'flowMain',
-    #                        'flowBranch',
-    #                         'size', 'sizeMain', 'sizeBranch', 'pdrop', 'pdropMain', 'pdropBranch', 'length',
-    #                          'fandist'])
-    # print(df.to_string(index=False))
 
 
 if __name__ == '__main__':

@@ -6,7 +6,6 @@
 
 import re
 import warnings
-
 import numpy as np
 from scipy.optimize import fsolve
 
@@ -436,7 +435,7 @@ def sizing_iterate_nick(ducts):
     dpdl = (fan_pressure - psum) / maxlength
     print('\n\n\n\n\n !!!!!!!!!!!!!!!BAR!!!!!!!!!!!!!!!')
     print(dpdl)
-    dpdl_old = 10
+    dpdl_old = -10
     print(dpdl_old)
     count = 0
     # main loop to size ducts first, then elbows, and finally tees
@@ -589,7 +588,6 @@ def print_results(fittings):
         print(repr(fitting['ID']).rjust(4), fitting['type'].rjust(20), ("%.3f" % velocity).rjust(15),
               ("%.1f" % fitting['flow']).rjust(15),
               ("%.3f" % fitting['pdrop']).rjust(15), ("%.3f" % fitting['size']).rjust(15))
-
 
 def print_fitting(f):
     print(' ', int(f['ID']), ' ', end='')

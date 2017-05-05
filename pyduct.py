@@ -678,6 +678,7 @@ def print_results(fittings):
     print('ID'.rjust(4), 'Fitting'.rjust(20), 'Velocity'.rjust(15), 'Q'.rjust(15), 'DeltaP'.rjust(15),
           'Diameter'.rjust(15))
     sys.stdout = orig_stdout
+    # test
     for fitting in fittings:
         if fitting['flow'] is not None and fitting['size'] is not None:
             # TODO: @sziske needs to fix this

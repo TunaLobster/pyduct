@@ -759,4 +759,4 @@ def calculate(filename):
 
 if __name__ == '__main__':
     filename = 'Duct Design Sample Input.txt'
-calculate(filename)
+    calculate(filename)

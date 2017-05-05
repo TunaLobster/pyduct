@@ -158,10 +158,10 @@ def get_little_f(dia, velocity, roughness):
         right_right = (-1) * 2 * np.log10((roughness / (3.7 * (dia / 12))) + (2.51 / (Re * np.sqrt(f))))
         return (right_right - left_side)
 
-    guess = 1000000
+    guess = 10
     finished = False
     while not finished:
-        f = fsolve(func, guess, xtol=.01, full_output=True)
+        f = fsolve(func, guess, full_output=True)
         if int(f[2]) == 1:  # check solution flag
             finished = True
         else:
@@ -226,10 +226,10 @@ def get_duct_size(deltap, flow, length, density, roughness):
         return deltap - duct_pressure_drop(dia, flow, length, density, roughness)
 
     finished = False
-    guess = .05
+    guess = .01
     while not finished:
         # print(guess)
-        f = fsolve(func, guess, xtol=.01, full_output=True)
+        f = fsolve(func, guess, full_output=True)
         if int(f[2]) == 1:
             finished = True
         else:
@@ -286,6 +286,16 @@ def interp2D(x, y, xlist, ylist, zmatrix):
 
 
 def tee_pressure_drop(dia, density, flow, outlet_flow, outlet_dia, branch):
+    '''
+
+    :param dia:
+    :param density:
+    :param flow:
+    :param outlet_flow:
+    :param outlet_dia:
+    :param branch: Boolean
+    :return:
+    '''
     Q = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # top most row Q_(branch/main)/Q_common
     A = np.array([.1, .2, .3, .4, .5, .6, .7, .8, .9])  # right most column A_(branch/main)/A_common
 
@@ -376,11 +386,6 @@ def sizing_iterate_nick(ducts):
                 p_duct = duct_pressure_drop(diameter, flow, length, density, roughness)
                 fitting['pdrop'] = p_duct
 
-        # fittings = ducts['fittings']
-        # psum = pressure_drop_sum(fittings)
-        #commment
-        # dpdl = (fan_pressure - psum) / maxlength
-
         for fitting in fittings:  # solving elbows
             if fitting['type'] == 'elbow':
                 down_fitting = find_fitting(int(fitting['IDdownMain']), fittings)
@@ -412,6 +417,25 @@ def sizing_iterate_nick(ducts):
                     #      tee_flow = fitting['flow']
                     #      IDdownMain=int(fitting['IDdownMain'])
                     #      IDdownBranch = int(fitting['IDdownBranch'])
+
+        for fitting in fittings:  # solving tees
+            if fitting['type'] == 'tee':
+                up_fitting = find_fitting(int(fitting['IDup']), fittings)
+                tee_inlet_diameter = up_fitting['size']
+                p_tee_main = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
+                                               find_fitting(fitting['IDdownMain'], fittings)['flow'],
+                                               find_fitting(fitting['IDdownMain'], fittings)['size'], False)
+                p_tee_branch = tee_pressure_drop(tee_inlet_diameter, density, fitting['flow'],
+                                               find_fitting(fitting['IDdownBranch'], fittings)['flow'],
+                                               find_fitting(fitting['IDdownBranch'], fittings)['size'], True)
+                # if tee_inlet_diameter / fitting['sizeMain'] > .9:
+                #     pass
+                fitting['size'] = tee_inlet_diameter
+                fitting['sizeMain']=find_fitting(fitting['IDdownMain'], fittings)['size']
+                fitting['sizeBranch'] = find_fitting(fitting['IDdownBranch'], fittings)['size']
+                fitting['pdropMain'] = p_tee_main
+                fitting['pdropBranch'] = p_tee_branch
+
 
         fittings = ducts['fittings']
         psum = pressure_drop_sum(fittings)

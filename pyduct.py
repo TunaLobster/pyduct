@@ -262,6 +262,7 @@ def pressure_drop_sum(fittings):  # calculates total pressure loss of LONGEST RU
                 pdrop_sum += find_fitting(int(next_fitting_ID), fittings)['pdropBranch']
     return pdrop_sum
 
+
 def fitting_loss_sum(fittings):  # calculates total pressure loss of LONGEST RUN
     farthest_fitting = largest_path(fittings)
     fitting = farthest_fitting
@@ -489,7 +490,7 @@ def sizing_iterate_nick(ducts):
     # print('foo')
     # 0 = fan_pressure - p_sum_long_run
     for i in range(5):
-    #while abs(dpdl - dpdl_old) >= .0001:
+        # while abs(dpdl - dpdl_old) >= .0001:
         count += 1
         print(abs(dpdl - dpdl_old))
         print(psum)
@@ -556,6 +557,30 @@ def sizing_iterate_nick(ducts):
         dpdl_old = dpdl
         dpdl = (fan_pressure - psum) / maxlength
         print('bottom of loop')
+
+    # apply found dpdl to rest of ducts in system
+    # for fitting in fittings:
+    #     if fitting['type'] == 'duct':
+    #         deltap = dpdl * fitting['length']
+    #         fitting['size'] = get_duct_size(deltap, fitting['flow'], fitting['length'], density, roughness)
+
+    # apply duct sizes to fittings
+    #   tee inlet from upstream
+    #   tee branch size from IDdownBranch
+    #   tee main from from IDdownMain
+    #   elbow from IDdownMain
+    # for fitting in fittings:
+    #     if fitting['type'] == 'tee':
+    #         fitting['size'] = find_fitting(int(fitting['IDup']), fittings)
+    #         fitting['sizeMain'] = find_fitting(int(fitting['IDdownMain']), fittings)
+    #         fitting['sizeBranch'] = find_fitting(int(fitting['IDdownBranch']), fittings)
+    #     elif fitting['type'] == 'elbow':
+    #         fitting['size'] = find_fitting(int(fitting['IDdownMain']), fittings)
+
+    # find pressure at each diffuser
+    #   list of each diffuser
+    #   run for each diffuser
+    #   sum pdrop of everything in the run
 
     return
 
@@ -696,7 +721,7 @@ def calculate(filename):
     print_results(fittings)
     # optimize_system(ducts)
     print('\n\nAfter setup_flowrates, setup_fan_distances, and sizing: \n')
-    #print_summary(ducts)
+    # print_summary(ducts)
 
 
 if __name__ == '__main__':

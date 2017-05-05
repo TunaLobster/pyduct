@@ -7,7 +7,6 @@
 import re
 import sys
 import warnings
-
 import numpy as np
 from scipy.optimize import fsolve
 
